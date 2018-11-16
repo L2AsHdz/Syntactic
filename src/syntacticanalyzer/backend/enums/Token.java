@@ -1,0 +1,7 @@
+package syntacticanalyzer.backend.enums;
+
+public enum Token {
+    NUMERO, IDENTIFICADOR, LITERAL, COMENTARIO,
+    IGUAL, SUMA, MULTIPLICACION, ESCRIBIR, FIN, REPETIR, INICIAR,
+    SI, VERDADERO, FALSO, ENTONCES, ERROR
+}

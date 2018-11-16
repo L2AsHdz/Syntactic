@@ -1,21 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package syntacticanalyzer;
 
-/**
- *
- * @author asael
- */
+import javax.swing.JFrame;
+import syntacticanalyzer.ui.Interfaz;
+
 public class SyntacticAnalyzer {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        // TODO code application logic here
+        Interfaz ui = new Interfaz();
+        ui.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        ui.setLocationRelativeTo(null);
+        ui.setTitle("Analizador Lexico");
+        ui.setVisible(true);
     }
     
 }
