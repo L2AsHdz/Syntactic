@@ -9,8 +9,7 @@ public class SyntacticAnalyzer {
         Interfaz ui = new Interfaz();
         ui.setExtendedState(JFrame.MAXIMIZED_BOTH);
         ui.setLocationRelativeTo(null);
-        ui.setTitle("Analizador Lexico");
+        ui.setTitle("Analizador Sintactico");
         ui.setVisible(true);
     }
-    
 }

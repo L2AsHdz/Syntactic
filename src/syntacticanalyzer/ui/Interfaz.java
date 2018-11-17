@@ -298,8 +298,8 @@ public class Interfaz extends javax.swing.JFrame {
             fc.showOpenDialog(this);
             try {
                 path = fc.getSelectedFile().getAbsolutePath();
-                notChanges = true;   
                 areaTexto.setText(file.readFile(path));
+                notChanges = true;
             } catch (Exception e) {
                 System.out.println("se cancelo");
             }
@@ -369,16 +369,35 @@ public class Interfaz extends javax.swing.JFrame {
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
         String texto = areaTexto.getText();
         analizador = new Lexer(new StringReader(texto));
+        boolean seguir = true;
         
-        ArrayList<TokenValido> tokens = analizador.getTokensValidos();
-        ArrayList<ErrorLexico> errores = analizador.getErrores();
-        if (errores.isEmpty()) {
-            for (TokenValido t : tokens){
-                System.out.println("Token: "+t.getNombreToken()+" Lexema: "+t.getLexema()+" Pos: "+t.getPosicion());
-            }
-        }else{
-            for (ErrorLexico e : errores){
-                System.out.println("Token: "+e.getToken()+" Lexema: "+e.getLexema()+" Pos: "+e.getPosicion());
+        while(seguir){
+            try {
+                Token token = analizador.yylex();
+                if (token == null) {
+                    seguir = false;
+                    break;
+                }
+                switch (token) {
+                    case ERROR:
+                        System.out.println("Lexema Error: "+analizador.yytext()+" "
+                                + "Posicion: ("+(analizador.getyyline()+1)+","+(analizador.getyycolumn()+1)+")");
+                        break;
+                    case IDENTIFICADOR:
+                    case NUMERO:
+                    case COMENTARIO:
+                    case LITERAL:
+                        System.out.println("Token: "+token.toString()+" Lexema: "+analizador.getLexema()+" "
+                                + "Posicion: ("+(analizador.getyyline()+1)+","+(analizador.getyycolumn()+1)+")");
+                        break;
+                    default:
+                        System.out.println("Token: "+token.toString()+" Lexema: "+analizador.yytext()+" "
+                                + "Posicion: ("+(analizador.getyyline()+1)+","+(analizador.getyycolumn()+1)+")");
+                        break;
+                }
+            } catch (Exception e) {
+                seguir = false;
+                break;
             }
         }
     }//GEN-LAST:event_btnAnalizarActionPerformed

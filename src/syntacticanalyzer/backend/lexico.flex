@@ -17,65 +17,64 @@ import java.util.ArrayList;
 %line
 %column
 
-%{
-    private ArrayList<TokenValido> tokensValidos = new ArrayList();
-    private ArrayList<ErrorLexico> errores = new ArrayList();
-%}
-
-NUMERO = [0|(("+"|"-")?[1-9][0-9])]
-IDENTIFICADOR = [(_|[a-z]|[A-Z])(a-z|A-Z|0-9|"_"|"-")*]
-LITERAL = ["(^|n)"]
-COMENTARIO = [//[^](\n)]
-LineTerminator = [\r|\n|\t]
-SEPARADORES = {LineTerminator}|[ \n\t\r]
+LETRA = [a-zA-z]
+DIGITO = [0-9]
+DIGITO2 = [1-9]
+SEPARADORES = [ \t\r\n]
 
 %{
-    public ArrayList<TokenValido> getTokensValidos() {
-        return tokensValidos;
+    private StringBuffer string = new StringBuffer();
+    private String lexema;
+    
+    public String getLexema() {
+        return lexema;
+    }
+    public int getyyline() {
+        return yyline;
     }
 
-    public ArrayList<ErrorLexico> getErrores() {
-        return errores;
+    public int getyycolumn() {
+        return yycolumn;
     }
 %}
+
+%state STRING
 
 %%
 
-/*Reglas Lexicas*/
+/*Reglas lexicas*/
+
+<YYINITIAL> "ESCRIBIR"                      {return Token.ESCRIBIR;}     
+<YYINITIAL> "FIN"                           {return Token.FIN;}                  
+<YYINITIAL> "REPETIR"                       {return Token.REPETIR;}                  
+<YYINITIAL> "INICIAR"                       {return Token.INICIAR;}                  
+<YYINITIAL> "SI"                            {return Token.SI;}             
+<YYINITIAL> "VERDADERO"                     {return Token.VERDADERO;}                  
+<YYINITIAL> "FALSO"                         {return Token.FALSO;}                  
+<YYINITIAL> "ENTONCES"                      {return Token.ENTONCES;}             
+
 
 <YYINITIAL> {
-        {SEPARADORES} {/*ignorar*/}
-        {IDENTIFICADOR} {tokensValidos.add(new TokenValido(Token.IDENTIFICADOR, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                        return Token.IDENTIFICADOR;}
-        {NUMERO} {tokensValidos.add(new TokenValido(Token.NUMERO, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                 return Token.NUMERO;}
-        {LITERAL} {tokensValidos.add(new TokenValido(Token.LITERAL, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                  return Token.LITERAL;}
-        {COMENTARIO} {tokensValidos.add(new TokenValido(Token.COMENTARIO, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                     return Token.COMENTARIO;}   
-        "ESCRIBIR" {tokensValidos.add(new TokenValido(Token.ESCRIBIR, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                   return Token.ESCRIBIR;}
-        "FIN" {tokensValidos.add(new TokenValido(Token.FIN, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-              return Token.FIN;}
-        "REPETIR" {tokensValidos.add(new TokenValido(Token.REPETIR, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                  return Token.REPETIR;}
-        "INICIAR" {tokensValidos.add(new TokenValido(Token.INICIAR, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                  return Token.INICIAR;}
-        "SI" {tokensValidos.add(new TokenValido(Token.SI, yytext(), ("("+yyline+","+yycolumn+")")));
-             return Token.SI;}
-        "VERDADERO" {tokensValidos.add(new TokenValido(Token.VERDADERO, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                    return Token.VERDADERO;}
-        "FALSO" {tokensValidos.add(new TokenValido(Token.FALSO, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                return Token.FALSO;}
-        "ENTONCES" {tokensValidos.add(new TokenValido(Token.ENTONCES, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                   return Token.ENTONCES;}
+    {SEPARADORES}                           {/*ignorar*/}
+    ({LETRA}|"_")({LETRA}|{DIGITO}|"-"|"_")* {lexema = yytext(); return Token.IDENTIFICADOR;}
+    "0"|("+"|"-")?({DIGITO2}{DIGITO}*)      {lexema = yytext(); return Token.NUMERO;}
+    \"                                      {string.setLength(0); yybegin(STRING);}
+    "//"[^\n]*                            {lexema = yytext(); return Token.COMENTARIO;}
+    "+"                                     {return Token.SUMA;}
+    "*"                                     {return Token.MULTIPLICACION;}
+    "="                                     {return Token.ASIGNACION;}
+    "("                                     {return Token.PARENTESISA;}
+    ")"                                     {return Token.PARENTESISC;}
 }
-<YYINITIAL> "+" {tokensValidos.add(new TokenValido(Token.SUMA, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                return Token.SUMA;}
-<YYINITIAL> "*" {tokensValidos.add(new TokenValido(Token.MULTIPLICACION, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                return Token..MULTIPLICACION;}
-<YYINITIAL> "=" {tokensValidos.add(new TokenValido(Token.IGUAL, yytext(), ("("+(yyline)+","+(yycolumn)+")")));
-                return Token.IGUAL;}
 
-[^] {errores.add(new ErrorLexico(Token.ERROR, yytext(), (""+(yyline)+","+(yycolumn)+"")));
-    return Token.ERROR;}
+<STRING> {
+    \"                                      { yybegin(YYINITIAL); 
+                                            lexema = string.toString(); return Token.LITERAL;}
+    [^\n\r\"\\]+                            { string.append( yytext() ); }
+    \\t                                     { string.append('\t'); }
+    \\n                                     { string.append('\n'); }
+    \\r                                     { string.append('\r'); }
+    \\\"                                    { string.append('\"'); }
+    \\                                      { string.append('\\'); }
+}
+[^]                                         {lexema = yytext(); return Token.ERROR;}
