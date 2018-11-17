@@ -6,9 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -21,11 +18,8 @@ import javax.swing.text.Document;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
+import syntacticanalyzer.backend.LexicControl;
 import syntacticanalyzer.backend.archivos.ControladorArchivo;
-import syntacticanalyzer.backend.Lexer;
-import syntacticanalyzer.backend.enums.Token;
-import syntacticanalyzer.backend.lexemas.ErrorLexico;
-import syntacticanalyzer.backend.lexemas.TokenValido;
 
 /**
  *
@@ -33,10 +27,9 @@ import syntacticanalyzer.backend.lexemas.TokenValido;
  */
 public class Interfaz extends javax.swing.JFrame {
 
-    private String path = "";
     private final ControladorArchivo file = new ControladorArchivo();
     private static boolean notChanges = true;
-    private Lexer analizador;
+    private String path = "";
     
     /**
      * Creates new form Interfaz
@@ -60,6 +53,7 @@ public class Interfaz extends javax.swing.JFrame {
         areaTexto = new javax.swing.JTextArea();
         cordCursor = new javax.swing.JLabel();
         btnAnalizar = new javax.swing.JButton();
+        btnReport = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuArchivo = new javax.swing.JMenu();
         itemAbrir = new javax.swing.JMenuItem();
@@ -141,6 +135,8 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
+        btnReport.setText("Reporte Tokens");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -148,7 +144,9 @@ public class Interfaz extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(btnAnalizar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 377, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(btnReport)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 236, Short.MAX_VALUE)
                 .addComponent(cordCursor)
                 .addContainerGap())
             .addComponent(jScrollPane2)
@@ -160,7 +158,8 @@ public class Interfaz extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cordCursor)
-                    .addComponent(btnAnalizar))
+                    .addComponent(btnAnalizar)
+                    .addComponent(btnReport))
                 .addContainerGap())
         );
 
@@ -282,7 +281,6 @@ public class Interfaz extends javax.swing.JFrame {
             int caretPos = editArea.getCaretPosition();
             linea = editArea.getLineOfOffset(caretPos);
             columna = caretPos - editArea.getLineStartOffset(linea);
-            
             linea += 1;
             columna += 1;
         } catch (Exception e) {
@@ -368,38 +366,7 @@ public class Interfaz extends javax.swing.JFrame {
     //Analiza el texto, detecta errores y si no los hubiera muestra reporte de tokens aceptados
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
         String texto = areaTexto.getText();
-        analizador = new Lexer(new StringReader(texto));
-        boolean seguir = true;
-        
-        while(seguir){
-            try {
-                Token token = analizador.yylex();
-                if (token == null) {
-                    seguir = false;
-                    break;
-                }
-                switch (token) {
-                    case ERROR:
-                        System.out.println("Lexema Error: "+analizador.yytext()+" "
-                                + "Posicion: ("+(analizador.getyyline()+1)+","+(analizador.getyycolumn()+1)+")");
-                        break;
-                    case IDENTIFICADOR:
-                    case NUMERO:
-                    case COMENTARIO:
-                    case LITERAL:
-                        System.out.println("Token: "+token.toString()+" Lexema: "+analizador.getLexema()+" "
-                                + "Posicion: ("+(analizador.getyyline()+1)+","+(analizador.getyycolumn()+1)+")");
-                        break;
-                    default:
-                        System.out.println("Token: "+token.toString()+" Lexema: "+analizador.yytext()+" "
-                                + "Posicion: ("+(analizador.getyyline()+1)+","+(analizador.getyycolumn()+1)+")");
-                        break;
-                }
-            } catch (Exception e) {
-                seguir = false;
-                break;
-            }
-        }
+        LexicControl lc = new LexicControl(texto);
     }//GEN-LAST:event_btnAnalizarActionPerformed
 
     //Muestra informacion del programador
@@ -412,6 +379,7 @@ public class Interfaz extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea areaTexto;
     private javax.swing.JButton btnAnalizar;
+    private javax.swing.JButton btnReport;
     private javax.swing.JLabel cordCursor;
     private javax.swing.JMenuItem itemAbrir;
     private javax.swing.JMenuItem itemAcerca;
