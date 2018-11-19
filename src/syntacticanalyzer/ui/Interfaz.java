@@ -125,9 +125,9 @@ public class Interfaz extends javax.swing.JFrame {
         reporteTokenLayout.setVerticalGroup(
             reporteTokenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(reporteTokenLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(21, 21, 21)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(55, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         reporteErrores.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -178,11 +178,11 @@ public class Interfaz extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Nombre del Token", "Lexema", "Posicion"
+                "Descripcion del error", "Posicion"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -687,9 +687,8 @@ public class Interfaz extends javax.swing.JFrame {
         ArrayList<ErrorSintactico> listErrorS = sc.getErrores();
         for (ErrorSintactico t : listErrorS) {
             Object item[] = new Object[3];
-            item[0] = t.getToken();
-            item[1] = t.getLexema();
-            item[2] = t.getPosicion();
+            item[0] = t.getLexema();
+            item[1] = t.getPosicion();
             model.addRow(item);
         }
         tableTokens.setModel(model);
