@@ -2,18 +2,18 @@ package syntacticanalyzer.backend.lexemas;
 
 import syntacticanalyzer.backend.enums.Token;
 
-public class TokenValido {
-    private final Token token;
+public class ErrorSintactico {
+    private final  Token token;
     private final String lexema;
     private final String posicion;
 
-    public TokenValido(Token token, String lexema, String posicion) {
+    public ErrorSintactico(Token token, String lexema, String posicion) {
         this.token = token;
         this.lexema = lexema;
         this.posicion = posicion;
     }
 
-    public String getNombreToken() {
+    public String getToken() {
         return token.toString();
     }
 
@@ -23,9 +23,5 @@ public class TokenValido {
 
     public String getPosicion() {
         return posicion;
-    }    
-
-    public Token getToken() {
-        return token;
     }
 }

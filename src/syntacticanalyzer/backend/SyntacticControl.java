@@ -4,22 +4,24 @@ import java.util.ArrayList;
 import java.util.Stack;
 import syntacticanalyzer.backend.archivos.ControladorArchivo;
 import syntacticanalyzer.backend.enums.Token;
+import syntacticanalyzer.backend.lexemas.ErrorSintactico;
 import syntacticanalyzer.backend.lexemas.TokenValido;
+import syntacticanalyzer.backend.variables.Variable;
 import syntacticanalyzer.ui.Interfaz;
 
 public class SyntacticControl {
 
     private final ControladorArchivo file = new ControladorArchivo();
     private final ArrayList<TokenValido> tokens;
+    private ArrayList<Variable> variables = new ArrayList();
+    private ArrayList<ErrorSintactico> errores = new ArrayList();
     private Stack<String> pila = new Stack();
     private int estadoActual;
     private int veces = 1;
-    private int number;
     private boolean errorLexico;
     private boolean seguir;
     private boolean condicion = true;
     private String textoArchivo = "";
-    private String textoArchivo2 = "";
     private String escribir = Token.ESCRIBIR.toString();
     private String id = Token.IDENTIFICADOR.toString();
     private String literal = Token.LITERAL.toString();
@@ -38,7 +40,7 @@ public class SyntacticControl {
     private String pc = Token.PC.toString();
 
     public SyntacticControl(ArrayList<TokenValido> tokens) {
-        
+
         this.tokens = tokens;
         errorLexico = false;
         seguir = true;
@@ -58,11 +60,16 @@ public class SyntacticControl {
                     } else if (verPila("Z") && compararToken(si, i)) {
                         pila.push("C0");
                         estadoActual = 1;
-                    } else if (verPila("Z") && compararToken(id, i)) {
+                    } else if (verPila("Z") && compararToken(id, i) && compararToken(asignacion, (i + 1))) {
                         pila.push("A0");
                         estadoActual = 1;
-                    } else if (verPila("Z")) {
-                        
+                        variables.add(new Variable(tokens.get(i).getLexema()));
+                    } else {
+                        errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                        tokens.remove(i);
+                        estadoActual = 0;
                     }
                     break;
                 case 1:
@@ -84,6 +91,12 @@ public class SyntacticControl {
                         } else {
                             //agregar manejo de errores
                             errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
                             estadoActual = 0;
                             ///////////////////////////
                         }
@@ -94,26 +107,38 @@ public class SyntacticControl {
                             textoArchivo = this.tokens.get(i).getLexema();
                         } else if (compararToken(iniciar, (i + 1))) {
                             veces = Integer.parseInt(this.tokens.get(i).getLexema());
-                        } else if (compararToken(suma, (i+1)) || compararToken(mult, (i+1))) {
+                        } else if (compararToken(suma, (i + 1)) || compararToken(mult, (i + 1))) {
                             //opcion para operar las expresiones
                         }
                         desapilar(i, numero);
                     } else if (verPila(id)) {
-                        if (compararToken(fin, (i+1))) {
+                        if (compararToken(fin, (i + 1))) {
                             textoArchivo = this.tokens.get(i).getLexema();
-                        }else if (compararToken(suma, (i+1)) || compararToken(mult, (i+1))) {
+                        } else if (compararToken(suma, (i + 1)) || compararToken(mult, (i + 1))) {
                             //aqui va el codigo para operar el valor en el id
-                            
+
                             /////////////////////////////////////////////////
                         }
                         desapilar(i, id);
                     } else if (verPila(literal)) {
-                        if (compararToken(fin, (i+1))) {
+                        if (compararToken(fin, (i + 1))) {
                             textoArchivo += this.tokens.get(i).getLexema() + "\n";
                         }
                         desapilar(i, literal);
                     } else if (verPila(fin)) {
-                        desapilar(i, fin);
+                        if (compararToken(fin, i)) {
+                            desapilar(i, fin);
+                        } else {
+                            errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
+                            estadoActual = 0;
+                        }
+                        
                     } else if (verPila("R0")) {
                         pila.pop();
                         pila.push("R0'");
@@ -125,9 +150,18 @@ public class SyntacticControl {
                             pila.pop();
                             pila.push(fin);
                             pila.push("R2");
-                        } else {
+                        } else if (compararToken(fin, i)) {
                             pila.pop();
                             pila.push(fin);
+                        }else {
+                            errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
+                            estadoActual = 0;
                         }
                     } else if (verPila("R1")) {
                         if (compararToken(numero, (i))) {
@@ -138,6 +172,12 @@ public class SyntacticControl {
                             pila.push(id);
                         } else {
                             errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
                             estadoActual = 0;
                         }
                     } else if (verPila("R2")) {
@@ -153,6 +193,15 @@ public class SyntacticControl {
                         } else if (compararToken(fin, i) && !compararToken(escribir, (i + 1))) {
                             pila.pop();
                             pila.push(fin);
+                        } else {
+                            errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
+                            estadoActual = 0;
                         }
                     } else if (verPila("R3")) {
                         if (compararToken(numero, (i))) {
@@ -166,6 +215,12 @@ public class SyntacticControl {
                             pila.push(literal);
                         } else {
                             errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
                             estadoActual = 0;
                         }
                     } else if (verPila(repetir)) {
@@ -187,6 +242,12 @@ public class SyntacticControl {
                             pila.push(falso);
                         } else {
                             errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
                             estadoActual = 0;
                         }
                     } else if (verPila("C0'")) {
@@ -194,9 +255,18 @@ public class SyntacticControl {
                             pila.pop();
                             pila.push(fin);
                             pila.push("C2");
-                        } else {
+                        } else if (compararToken(fin, i)) {
                             pila.pop();
                             pila.push(fin);
+                        }else {
+                            errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
+                            estadoActual = 0;
                         }
                     } else if (verPila("C2")) {
                         pila.pop();
@@ -215,6 +285,12 @@ public class SyntacticControl {
                             pila.push(literal);
                         } else {
                             errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
                             estadoActual = 0;
                         }
                     } else if (verPila(si)) {
@@ -241,22 +317,28 @@ public class SyntacticControl {
                             pila.push("EX2");
                             pila.push("EX1");
                             pila.push(pa);
-                        }else if (compararToken(numero, i) || compararToken(id, i)) {
+                        } else if (compararToken(numero, i) || compararToken(id, i)) {
                             pila.pop();
                             pila.push("EX3");
                             pila.push("EX2");
                             pila.push("EX1");
-                        }else {
+                        } else {
                             errorLexico = true;
-                            System.out.println("error");
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
+                            estadoActual = 0;
                         }
-                    }else if (verPila("EX0'")) {
-                        if (compararToken(suma, (i+1)) || compararToken(mult, (i+1))) {
+                    } else if (verPila("EX0'")) {
+                        if (compararToken(suma, (i + 1)) || compararToken(mult, (i + 1))) {
                             pila.pop();
                             pila.push("EX0");
                             pila.push("EX2");
                             pila.push(pc);
-                        }else {
+                        } else if (compararToken(pc, i)) {
                             pila.pop();
                             pila.push(pc);
                         }
@@ -269,6 +351,12 @@ public class SyntacticControl {
                             pila.push(id);
                         } else {
                             errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
                             estadoActual = 0;
                         }
                     } else if (verPila("EX2")) {
@@ -280,15 +368,21 @@ public class SyntacticControl {
                             pila.push(mult);
                         } else {
                             errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
                             estadoActual = 0;
                         }
                     } else if (verPila("EX3")) {
-                        if (compararToken(numero, (i)) && !compararToken(suma, (i+1))
-                            && !compararToken(mult, (i+1))) {
+                        if (compararToken(numero, (i)) && !compararToken(suma, (i + 1))
+                                && !compararToken(mult, (i + 1))) {
                             pila.pop();
                             pila.push(numero);
-                        } else if (compararToken(id, (i)) && !compararToken(suma, (i+1))
-                            && !compararToken(mult, (i+1))) {
+                        } else if (compararToken(id, (i)) && !compararToken(suma, (i + 1))
+                                && !compararToken(mult, (i + 1))) {
                             pila.pop();
                             pila.push(id);
                         } else if (compararToken(pa, i)) {
@@ -298,13 +392,19 @@ public class SyntacticControl {
                             pila.push("EX2");
                             pila.push("EX1");
                             pila.push(pa);
-                        } else if (compararToken(suma, (i+1)) || compararToken(mult, (i+1))) {
+                        } else if (compararToken(suma, (i + 1)) || compararToken(mult, (i + 1))) {
                             pila.pop();
                             pila.push("EX3");
                             pila.push("EX2");
                             pila.push("EX1");
                         } else {
                             errorLexico = true;
+                            errores.add(new ErrorSintactico(tokens.get(i).getToken(), 
+                                tokens.get(i).getLexema(), 
+                                tokens.get(i).getPosicion()));
+                            pila.clear();
+                            pila.push("Z");
+                            tokens.remove(i);
                             estadoActual = 0;
                         }
                     } else if (verPila(asignacion)) {
@@ -359,5 +459,9 @@ public class SyntacticControl {
         } else {
             errorLexico = true;
         }
+    }
+
+    public ArrayList<ErrorSintactico> getErrores() {
+        return errores;
     }
 }

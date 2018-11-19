@@ -25,6 +25,7 @@ import syntacticanalyzer.backend.LexicControl;
 import syntacticanalyzer.backend.SyntacticControl;
 import syntacticanalyzer.backend.archivos.ControladorArchivo;
 import syntacticanalyzer.backend.lexemas.ErrorLexico;
+import syntacticanalyzer.backend.lexemas.ErrorSintactico;
 import syntacticanalyzer.backend.lexemas.TokenValido;
 
 /**
@@ -62,6 +63,9 @@ public class Interfaz extends javax.swing.JFrame {
         reporteErrores = new javax.swing.JDialog();
         jScrollPane3 = new javax.swing.JScrollPane();
         tableErrores = new javax.swing.JTable();
+        reporteErroresS = new javax.swing.JDialog();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tableErroresS = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         areaTexto = new javax.swing.JTextArea();
@@ -164,6 +168,47 @@ public class Interfaz extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(58, Short.MAX_VALUE))
         );
+
+        reporteErroresS.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        reporteErroresS.setTitle("Reporte Errores Sintacticos");
+        reporteErroresS.setSize(new java.awt.Dimension(632, 370));
+
+        tableErroresS.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Nombre del Token", "Lexema", "Posicion"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane4.setViewportView(tableErroresS);
+
+        javax.swing.GroupLayout reporteErroresSLayout = new javax.swing.GroupLayout(reporteErroresS.getContentPane());
+        reporteErroresS.getContentPane().setLayout(reporteErroresSLayout);
+        reporteErroresSLayout.setHorizontalGroup(
+            reporteErroresSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(reporteErroresSLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+        reporteErroresSLayout.setVerticalGroup(
+            reporteErroresSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(reporteErroresSLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(55, Short.MAX_VALUE))
+        );
+
+        reporteErroresS.getAccessibleContext().setAccessibleName("Reporte Errores Sintacticos");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setSize(new java.awt.Dimension(600, 400));
@@ -480,6 +525,16 @@ public class Interfaz extends javax.swing.JFrame {
                     System.out.println("se cancelo");
                 }
                 sc = new SyntacticControl(lc.getTokensValidos());
+                if (!sc.getErrores().isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Se han encontrado errores sintacticos", 
+                            "Informacion", JOptionPane.WARNING_MESSAGE);
+
+                    file.eliminar(path);
+                    tablaReporteErroresS();
+                    abrirDialog(reporteErroresS);
+                }else {
+                    JOptionPane.showMessageDialog(null, "Analisis realizado correctamente");
+                }
             }
         }
     }//GEN-LAST:event_btnAnalizarActionPerformed
@@ -524,6 +579,7 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
@@ -531,8 +587,10 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JMenu menuAyuda;
     private javax.swing.JMenu menuEditar;
     private javax.swing.JDialog reporteErrores;
+    private javax.swing.JDialog reporteErroresS;
     private javax.swing.JDialog reporteToken;
     private javax.swing.JTable tableErrores;
+    private javax.swing.JTable tableErroresS;
     private javax.swing.JTable tableTokens;
     // End of variables declaration//GEN-END:variables
 
@@ -620,6 +678,21 @@ public class Interfaz extends javax.swing.JFrame {
             model.addRow(item);
         }
         tableErrores.setModel(model);
+    }
+    
+    private void tablaReporteErroresS() {
+        DefaultTableModel model = (DefaultTableModel) tableErroresS.getModel();
+        model.setRowCount(0);
+
+        ArrayList<ErrorSintactico> listErrorS = sc.getErrores();
+        for (ErrorSintactico t : listErrorS) {
+            Object item[] = new Object[3];
+            item[0] = t.getToken();
+            item[1] = t.getLexema();
+            item[2] = t.getPosicion();
+            model.addRow(item);
+        }
+        tableTokens.setModel(model);
     }
 
     //abre un JDialog
