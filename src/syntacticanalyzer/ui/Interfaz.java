@@ -37,8 +37,8 @@ public class Interfaz extends javax.swing.JFrame {
     private LexicControl lc;
     private SyntacticControl sc;
     private static boolean notChanges = true;
-    private String path = "";
-    
+    private static String path = "";
+
     /**
      * Creates new form Interfaz
      */
@@ -370,10 +370,10 @@ public class Interfaz extends javax.swing.JFrame {
 
     //Evento utilizado para conocer la posicion del cursor en el area de texto 
     private void areaTextoCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_areaTextoCaretUpdate
-        javax.swing.JTextArea editArea = (javax.swing.JTextArea)evt.getSource();
+        javax.swing.JTextArea editArea = (javax.swing.JTextArea) evt.getSource();
         int linea = 1;
         int columna = 1;
-        
+
         try {
             int caretPos = editArea.getCaretPosition();
             linea = editArea.getLineOfOffset(caretPos);
@@ -398,7 +398,7 @@ public class Interfaz extends javax.swing.JFrame {
             } catch (Exception e) {
                 System.out.println("se cancelo");
             }
-        }else {
+        } else {
             cambiosSinGuardar(evt, 1);
         }
     }//GEN-LAST:event_itemAbrirActionPerformed
@@ -409,7 +409,7 @@ public class Interfaz extends javax.swing.JFrame {
             areaTexto.setText("");
             path = "";
             notChanges = true;
-        }else {
+        } else {
             cambiosSinGuardar(evt, 2);
         }
     }//GEN-LAST:event_itemNuevoActionPerformed
@@ -421,44 +421,44 @@ public class Interfaz extends javax.swing.JFrame {
         if (file.verifyFile(path)) {
             file.saveFile(path, texto);
             notChanges = true;
-        }else {
-            JFileChooser fc= new JFileChooser(); 
-            path = ""; 
-            try{
-                if(fc.showSaveDialog(null)==fc.APPROVE_OPTION){ 
+        } else {
+            JFileChooser fc = new JFileChooser();
+            path = "";
+            try {
+                if (fc.showSaveDialog(null) == fc.APPROVE_OPTION) {
                     try {
-                        path = fc.getSelectedFile().getAbsolutePath() + ".txt";    
+                        path = fc.getSelectedFile().getAbsolutePath() + ".txt";
                         notChanges = true;
                     } catch (Exception e) {
                         System.out.println("se cancelo");
                     }
                 }
                 file.saveFile(path, texto);
-            }catch (HeadlessException ex){ 
+            } catch (HeadlessException ex) {
                 //ex.printStackTrace();
-            } 
+            }
         }
     }//GEN-LAST:event_itemGuardarActionPerformed
 
     //Guarda el documento en una nueva ruta indicada por el usuario
     private void itemGuardarComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemGuardarComoActionPerformed
         String texto = areaTexto.getText();
-        JFileChooser fc= new JFileChooser();
+        JFileChooser fc = new JFileChooser();
         fc.setDialogTitle("Guardar Como");
-            try{
-            path = ""; 
-                if(fc.showSaveDialog(null)==fc.APPROVE_OPTION){ 
-                    try {
-                        path = fc.getSelectedFile().getAbsolutePath() + ".txt";    
-                        notChanges = true;
-                    } catch (Exception e) {
-                        System.out.println("se cancelo");
-                    }
+        try {
+            path = "";
+            if (fc.showSaveDialog(null) == fc.APPROVE_OPTION) {
+                try {
+                    path = fc.getSelectedFile().getAbsolutePath() + ".txt";
+                    notChanges = true;
+                } catch (Exception e) {
+                    System.out.println("se cancelo");
                 }
-                file.saveFile(path, texto);
-            }catch (HeadlessException ex){ 
-                //ex.printStackTrace();
             }
+            file.saveFile(path, texto);
+        } catch (HeadlessException ex) {
+            //ex.printStackTrace();
+        }
     }//GEN-LAST:event_itemGuardarComoActionPerformed
 
     //Analiza el texto, detecta errores y si no los hubiera muestra reporte de tokens aceptados
@@ -466,14 +466,28 @@ public class Interfaz extends javax.swing.JFrame {
         String texto = areaTexto.getText();
         lc = new LexicControl(texto);
         if (lc.getErrores().isEmpty()) {
-            sc = new SyntacticControl(lc.getTokensValidos());
+            int resp = JOptionPane.showConfirmDialog(null,
+                    "Analisis lexico finalizado\n"
+                    + "Desea comenzar el analisis sintactico?",
+                    "Confirmar", JOptionPane.YES_NO_OPTION);
+            if (resp == 0) {
+                JFileChooser fc = new JFileChooser();
+                fc.showOpenDialog(this);
+                try {
+                    path = fc.getSelectedFile().getAbsolutePath();
+                    file.saveFile(path, "");
+                } catch (Exception e) {
+                    System.out.println("se cancelo");
+                }
+                sc = new SyntacticControl(lc.getTokensValidos());
+            }
         }
     }//GEN-LAST:event_btnAnalizarActionPerformed
 
     //Muestra informacion del programador
     private void itemAcercaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAcercaActionPerformed
         String mensaje = "Proyecto Lenguajes Formales: \n\t\tAnalizador Lexico\n"
-                        + "\n\n\t\tAsael Hernadez\nEstudiante Ingenieria en Sistemas";
+                + "\n\n\t\tAsael Hernadez\nEstudiante Ingenieria en Sistemas";
         JOptionPane.showMessageDialog(null, mensaje);
     }//GEN-LAST:event_itemAcercaActionPerformed
 
@@ -483,7 +497,7 @@ public class Interfaz extends javax.swing.JFrame {
         if (!lc.getErrores().isEmpty()) {
             tablaReporteErrores();
             abrirDialog(reporteErrores);
-        }else {
+        } else {
             tablaReporteTokens();
             abrirDialog(reporteToken);
         }
@@ -522,16 +536,16 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JTable tableTokens;
     // End of variables declaration//GEN-END:variables
 
-    public static void setCambio(boolean change){
+    public static void setCambio(boolean change) {
         notChanges = change;
     }
-    
+
     //Oyente que detecta cuando un documento es editado
-    public void cambiosSinGuardar(ActionEvent evt, int op){
+    public void cambiosSinGuardar(ActionEvent evt, int op) {
         String[] options = {"Guardar Cambios", "Desechar Cambios", "Cancelar"};
-        int selection = JOptionPane.showOptionDialog(null, "Hay cambios sin guardar!", 
-            "Informacion", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, 
-            null, options, options[0]);
+        int selection = JOptionPane.showOptionDialog(null, "Hay cambios sin guardar!",
+                "Informacion", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+                null, options, options[0]);
 
         switch (selection) {
             case 0:
@@ -553,7 +567,7 @@ public class Interfaz extends javax.swing.JFrame {
                 }
                 break;
             case 2:
-                
+
                 break;
         }
     }
@@ -564,10 +578,10 @@ public class Interfaz extends javax.swing.JFrame {
             this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
             addWindowListener(new WindowAdapter() {
                 @Override
-                public void windowClosing(WindowEvent e){
+                public void windowClosing(WindowEvent e) {
                     if (notChanges) {
                         System.exit(0);
-                    }else {
+                    } else {
                         cambiosSinGuardar(null, 0);
                     }
                 }
@@ -576,12 +590,12 @@ public class Interfaz extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-    
+
     //genera la tabla de reportes de tokens aceptados
-    private void tablaReporteTokens(){
-        DefaultTableModel model = (DefaultTableModel)tableTokens.getModel();
+    private void tablaReporteTokens() {
+        DefaultTableModel model = (DefaultTableModel) tableTokens.getModel();
         model.setRowCount(0);
-        
+
         ArrayList<TokenValido> listToken = lc.getTokensValidos();
         for (TokenValido t : listToken) {
             Object item[] = new Object[3];
@@ -592,12 +606,12 @@ public class Interfaz extends javax.swing.JFrame {
         }
         tableTokens.setModel(model);
     }
-    
+
     //genera la tabla de errores encontrados en el documento
-    private void tablaReporteErrores(){
-        DefaultTableModel model = (DefaultTableModel)tableErrores.getModel();
+    private void tablaReporteErrores() {
+        DefaultTableModel model = (DefaultTableModel) tableErrores.getModel();
         model.setRowCount(0);
-        
+
         ArrayList<ErrorLexico> listError = lc.getErrores();
         for (ErrorLexico e : listError) {
             Object item[] = new Object[2];
@@ -607,11 +621,15 @@ public class Interfaz extends javax.swing.JFrame {
         }
         tableErrores.setModel(model);
     }
-    
+
     //abre un JDialog
-    private void abrirDialog(JDialog jd){
+    private void abrirDialog(JDialog jd) {
         jd.setResizable(false);
         jd.setLocationRelativeTo(null);
         jd.setVisible(true);
+    }
+
+    public static String getPath() {
+        return path;
     }
 }

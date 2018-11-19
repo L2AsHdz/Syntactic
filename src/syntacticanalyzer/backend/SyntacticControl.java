@@ -2,11 +2,14 @@ package syntacticanalyzer.backend;
 
 import java.util.ArrayList;
 import java.util.Stack;
+import syntacticanalyzer.backend.archivos.ControladorArchivo;
 import syntacticanalyzer.backend.enums.Token;
 import syntacticanalyzer.backend.lexemas.TokenValido;
+import syntacticanalyzer.ui.Interfaz;
 
 public class SyntacticControl {
 
+    private final ControladorArchivo file = new ControladorArchivo();
     private final ArrayList<TokenValido> tokens;
     private Stack<String> pila = new Stack();
     private int estadoActual;
@@ -16,6 +19,7 @@ public class SyntacticControl {
     private boolean seguir;
     private boolean condicion = true;
     private String textoArchivo = "";
+    private String textoArchivo2 = "";
     private String escribir = Token.ESCRIBIR.toString();
     private String id = Token.IDENTIFICADOR.toString();
     private String literal = Token.LITERAL.toString();
@@ -34,6 +38,7 @@ public class SyntacticControl {
     private String pc = Token.PC.toString();
 
     public SyntacticControl(ArrayList<TokenValido> tokens) {
+        
         this.tokens = tokens;
         errorLexico = false;
         seguir = true;
@@ -94,10 +99,18 @@ public class SyntacticControl {
                         }
                         desapilar(i, numero);
                     } else if (verPila(id)) {
-                        textoArchivo = this.tokens.get(i).getLexema();
+                        if (compararToken(fin, (i+1))) {
+                            textoArchivo = this.tokens.get(i).getLexema();
+                        }else if (compararToken(suma, (i+1)) || compararToken(mult, (i+1))) {
+                            //aqui va el codigo para operar el valor en el id
+                            
+                            /////////////////////////////////////////////////
+                        }
                         desapilar(i, id);
                     } else if (verPila(literal)) {
-                        textoArchivo = this.tokens.get(i).getLexema();
+                        if (compararToken(fin, (i+1))) {
+                            textoArchivo += this.tokens.get(i).getLexema() + "\n";
+                        }
                         desapilar(i, literal);
                     } else if (verPila(fin)) {
                         desapilar(i, fin);
@@ -310,10 +323,10 @@ public class SyntacticControl {
                     break;
                 case 2:
                     System.out.println("Estructura correcta");
-                    System.out.println(this.tokens.size());
                     if (!textoArchivo.equals("") && condicion) {
                         for (int j = 0; j < veces; j++) {
                             System.out.println(textoArchivo);
+                            file.agregar(Interfaz.getPath(), textoArchivo);
                         }
                     }
                     System.out.println("\n");

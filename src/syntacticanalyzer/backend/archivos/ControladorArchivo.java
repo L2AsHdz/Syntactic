@@ -1,7 +1,9 @@
 package syntacticanalyzer.backend.archivos;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -40,6 +42,14 @@ public class ControladorArchivo {
             System.out.println("No se encontró el archivo");
         }	
     }
+    
+public void agregar(String path, String texto){
+            try(PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
+                    pw.print(texto);
+            }catch (IOException e) {
+                    System.err.println(e);
+            }		
+	}
     
     public boolean verifyFile (String archivo){
         File file = new File(archivo);
