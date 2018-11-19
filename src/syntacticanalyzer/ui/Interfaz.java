@@ -6,20 +6,26 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import javax.swing.AbstractAction;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Document;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 import syntacticanalyzer.backend.LexicControl;
+import syntacticanalyzer.backend.SyntacticControl;
 import syntacticanalyzer.backend.archivos.ControladorArchivo;
+import syntacticanalyzer.backend.lexemas.ErrorLexico;
+import syntacticanalyzer.backend.lexemas.TokenValido;
 
 /**
  *
@@ -28,6 +34,8 @@ import syntacticanalyzer.backend.archivos.ControladorArchivo;
 public class Interfaz extends javax.swing.JFrame {
 
     private final ControladorArchivo file = new ControladorArchivo();
+    private LexicControl lc;
+    private SyntacticControl sc;
     private static boolean notChanges = true;
     private String path = "";
     
@@ -48,6 +56,12 @@ public class Interfaz extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        reporteToken = new javax.swing.JDialog();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableTokens = new javax.swing.JTable();
+        reporteErrores = new javax.swing.JDialog();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tableErrores = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         areaTexto = new javax.swing.JTextArea();
@@ -72,6 +86,84 @@ public class Interfaz extends javax.swing.JFrame {
         menuAyuda = new javax.swing.JMenu();
         itemAyuda = new javax.swing.JMenuItem();
         itemAcerca = new javax.swing.JMenuItem();
+
+        reporteToken.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        reporteToken.setTitle("Reporte Tokens Validos");
+        reporteToken.setSize(new java.awt.Dimension(632, 370));
+
+        tableTokens.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Nombre del Token", "Lexema", "Posicion"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tableTokens);
+
+        javax.swing.GroupLayout reporteTokenLayout = new javax.swing.GroupLayout(reporteToken.getContentPane());
+        reporteToken.getContentPane().setLayout(reporteTokenLayout);
+        reporteTokenLayout.setHorizontalGroup(
+            reporteTokenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(reporteTokenLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+        reporteTokenLayout.setVerticalGroup(
+            reporteTokenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(reporteTokenLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(55, Short.MAX_VALUE))
+        );
+
+        reporteErrores.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        reporteErrores.setTitle("Errores");
+        reporteErrores.setSize(new java.awt.Dimension(632, 370));
+
+        tableErrores.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Lexema", "Posicion"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(tableErrores);
+
+        javax.swing.GroupLayout reporteErroresLayout = new javax.swing.GroupLayout(reporteErrores.getContentPane());
+        reporteErrores.getContentPane().setLayout(reporteErroresLayout);
+        reporteErroresLayout.setHorizontalGroup(
+            reporteErroresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(reporteErroresLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+        reporteErroresLayout.setVerticalGroup(
+            reporteErroresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(reporteErroresLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(58, Short.MAX_VALUE))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setSize(new java.awt.Dimension(600, 400));
@@ -136,6 +228,11 @@ public class Interfaz extends javax.swing.JFrame {
         });
 
         btnReport.setText("Reporte Tokens");
+        btnReport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReportActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -346,9 +443,10 @@ public class Interfaz extends javax.swing.JFrame {
     //Guarda el documento en una nueva ruta indicada por el usuario
     private void itemGuardarComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemGuardarComoActionPerformed
         String texto = areaTexto.getText();
-        JFileChooser fc= new JFileChooser(); 
-            path = ""; 
+        JFileChooser fc= new JFileChooser();
+        fc.setDialogTitle("Guardar Como");
             try{
+            path = ""; 
                 if(fc.showSaveDialog(null)==fc.APPROVE_OPTION){ 
                     try {
                         path = fc.getSelectedFile().getAbsolutePath() + ".txt";    
@@ -366,7 +464,10 @@ public class Interfaz extends javax.swing.JFrame {
     //Analiza el texto, detecta errores y si no los hubiera muestra reporte de tokens aceptados
     private void btnAnalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalizarActionPerformed
         String texto = areaTexto.getText();
-        LexicControl lc = new LexicControl(texto);
+        lc = new LexicControl(texto);
+        if (lc.getErrores().isEmpty()) {
+            sc = new SyntacticControl(lc.getTokensValidos());
+        }
     }//GEN-LAST:event_btnAnalizarActionPerformed
 
     //Muestra informacion del programador
@@ -375,6 +476,18 @@ public class Interfaz extends javax.swing.JFrame {
                         + "\n\n\t\tAsael Hernadez\nEstudiante Ingenieria en Sistemas";
         JOptionPane.showMessageDialog(null, mensaje);
     }//GEN-LAST:event_itemAcercaActionPerformed
+
+    private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportActionPerformed
+        String texto = areaTexto.getText();
+        lc = new LexicControl(texto);
+        if (!lc.getErrores().isEmpty()) {
+            tablaReporteErrores();
+            abrirDialog(reporteErrores);
+        }else {
+            tablaReporteTokens();
+            abrirDialog(reporteToken);
+        }
+    }//GEN-LAST:event_btnReportActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea areaTexto;
@@ -394,13 +507,19 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JMenuItem itemRehacer;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JMenu menuArchivo;
     private javax.swing.JMenu menuAyuda;
     private javax.swing.JMenu menuEditar;
+    private javax.swing.JDialog reporteErrores;
+    private javax.swing.JDialog reporteToken;
+    private javax.swing.JTable tableErrores;
+    private javax.swing.JTable tableTokens;
     // End of variables declaration//GEN-END:variables
 
     public static void setCambio(boolean change){
@@ -428,6 +547,7 @@ public class Interfaz extends javax.swing.JFrame {
                         itemAbrirActionPerformed(evt);
                         break;
                     case 2:
+                        notChanges = true;
                         itemNuevoActionPerformed(evt);
                         break;
                 }
@@ -455,5 +575,43 @@ public class Interfaz extends javax.swing.JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    //genera la tabla de reportes de tokens aceptados
+    private void tablaReporteTokens(){
+        DefaultTableModel model = (DefaultTableModel)tableTokens.getModel();
+        model.setRowCount(0);
+        
+        ArrayList<TokenValido> listToken = lc.getTokensValidos();
+        for (TokenValido t : listToken) {
+            Object item[] = new Object[3];
+            item[0] = t.getNombreToken();
+            item[1] = t.getLexema();
+            item[2] = t.getPosicion();
+            model.addRow(item);
+        }
+        tableTokens.setModel(model);
+    }
+    
+    //genera la tabla de errores encontrados en el documento
+    private void tablaReporteErrores(){
+        DefaultTableModel model = (DefaultTableModel)tableErrores.getModel();
+        model.setRowCount(0);
+        
+        ArrayList<ErrorLexico> listError = lc.getErrores();
+        for (ErrorLexico e : listError) {
+            Object item[] = new Object[2];
+            item[0] = e.getLexema();
+            item[1] = e.getPosicion();
+            model.addRow(item);
+        }
+        tableErrores.setModel(model);
+    }
+    
+    //abre un JDialog
+    private void abrirDialog(JDialog jd){
+        jd.setResizable(false);
+        jd.setLocationRelativeTo(null);
+        jd.setVisible(true);
     }
 }

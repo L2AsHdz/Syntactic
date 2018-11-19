@@ -719,11 +719,11 @@ public class Lexer {
             }
           case 34: break;
           case 9: 
-            { return Token.PARENTESISA;
+            { return Token.PA;
             }
           case 35: break;
           case 10: 
-            { return Token.PARENTESISC;
+            { return Token.PC;
             }
           case 36: break;
           case 11: 

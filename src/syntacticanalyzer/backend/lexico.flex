@@ -59,12 +59,12 @@ SEPARADORES = [ \t\r\n]
     ({LETRA}|"_")({LETRA}|{DIGITO}|"-"|"_")* {lexema = yytext(); return Token.IDENTIFICADOR;}
     "0"|("+"|"-")?({DIGITO2}{DIGITO}*)      {lexema = yytext(); return Token.NUMERO;}
     \"                                      {string.setLength(0); yybegin(STRING);}
-    "//"[^\n]*                            {lexema = yytext(); return Token.COMENTARIO;}
+    "//"[^\n]*                              {lexema = yytext(); return Token.COMENTARIO;}
     "+"                                     {return Token.SUMA;}
     "*"                                     {return Token.MULTIPLICACION;}
     "="                                     {return Token.ASIGNACION;}
-    "("                                     {return Token.PARENTESISA;}
-    ")"                                     {return Token.PARENTESISC;}
+    "("                                     {return Token.PA;}
+    ")"                                     {return Token.PC;}
 }
 
 <STRING> {
