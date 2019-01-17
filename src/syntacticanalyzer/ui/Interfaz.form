@@ -113,9 +113,6 @@
           <Dimension value="[632, 370]"/>
         </Property>
       </Properties>
-      <AccessibilityProperties>
-        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Reporte Errores Sintacticos"/>
-      </AccessibilityProperties>
 
       <Layout>
         <DimensionLayout dim="0">
