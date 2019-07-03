@@ -37,7 +37,7 @@ public class Interfaz extends javax.swing.JFrame {
     private final ControladorArchivo file = new ControladorArchivo();
     private LexicControl lc;
     private SyntacticControl sc;
-    private static boolean notChanges = true;
+    private static boolean withoutChange = true;
     private static String path = "";
 
     /**
@@ -93,6 +93,7 @@ public class Interfaz extends javax.swing.JFrame {
 
         reporteToken.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         reporteToken.setTitle("Reporte Tokens Validos");
+        reporteToken.setModal(true);
         reporteToken.setSize(new java.awt.Dimension(632, 370));
 
         tableTokens.setModel(new javax.swing.table.DefaultTableModel(
@@ -132,6 +133,7 @@ public class Interfaz extends javax.swing.JFrame {
 
         reporteErrores.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         reporteErrores.setTitle("Errores");
+        reporteErrores.setModal(true);
         reporteErrores.setSize(new java.awt.Dimension(632, 370));
 
         tableErrores.setModel(new javax.swing.table.DefaultTableModel(
@@ -207,8 +209,6 @@ public class Interfaz extends javax.swing.JFrame {
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(55, Short.MAX_VALUE))
         );
-
-        reporteErroresS.getAccessibleContext().setAccessibleName("Reporte Errores Sintacticos");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setSize(new java.awt.Dimension(600, 400));
@@ -432,14 +432,14 @@ public class Interfaz extends javax.swing.JFrame {
 
     //Abre un nuevo archivo, validando si el actual ya esta guardado
     private void itemAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAbrirActionPerformed
-        if (notChanges) {
-            notChanges = false;
+        if (withoutChange) {
+            withoutChange = false;
             JFileChooser fc = new JFileChooser();
             fc.showOpenDialog(this);
             try {
                 path = fc.getSelectedFile().getAbsolutePath();
                 areaTexto.setText(file.readFile(path));
-                notChanges = true;
+                withoutChange = true;
             } catch (Exception e) {
                 System.out.println("se cancelo");
             }
@@ -450,10 +450,10 @@ public class Interfaz extends javax.swing.JFrame {
 
     //Crea un nuevo archivo valida si el actual ya esta guardado
     private void itemNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemNuevoActionPerformed
-        if (notChanges) {
+        if (withoutChange) {
             areaTexto.setText("");
             path = "";
-            notChanges = true;
+            withoutChange = true;
         } else {
             cambiosSinGuardar(evt, 2);
         }
@@ -465,7 +465,7 @@ public class Interfaz extends javax.swing.JFrame {
         String texto = areaTexto.getText();
         if (file.verifyFile(path)) {
             file.saveFile(path, texto);
-            notChanges = true;
+            withoutChange = true;
         } else {
             JFileChooser fc = new JFileChooser();
             path = "";
@@ -473,7 +473,7 @@ public class Interfaz extends javax.swing.JFrame {
                 if (fc.showSaveDialog(null) == fc.APPROVE_OPTION) {
                     try {
                         path = fc.getSelectedFile().getAbsolutePath() + ".txt";
-                        notChanges = true;
+                        withoutChange = true;
                     } catch (Exception e) {
                         System.out.println("se cancelo");
                     }
@@ -495,7 +495,7 @@ public class Interfaz extends javax.swing.JFrame {
             if (fc.showSaveDialog(null) == fc.APPROVE_OPTION) {
                 try {
                     path = fc.getSelectedFile().getAbsolutePath() + ".txt";
-                    notChanges = true;
+                    withoutChange = true;
                 } catch (Exception e) {
                     System.out.println("se cancelo");
                 }
@@ -595,7 +595,7 @@ public class Interfaz extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     public static void setCambio(boolean change) {
-        notChanges = change;
+        withoutChange = change;
     }
 
     //Oyente que detecta cuando un documento es editado
@@ -615,11 +615,11 @@ public class Interfaz extends javax.swing.JFrame {
                         System.exit(0);
                         break;
                     case 1:
-                        notChanges = true;
+                        withoutChange = true;
                         itemAbrirActionPerformed(evt);
                         break;
                     case 2:
-                        notChanges = true;
+                        withoutChange = true;
                         itemNuevoActionPerformed(evt);
                         break;
                 }
@@ -637,7 +637,7 @@ public class Interfaz extends javax.swing.JFrame {
             addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    if (notChanges) {
+                    if (withoutChange) {
                         System.exit(0);
                     } else {
                         cambiosSinGuardar(null, 0);

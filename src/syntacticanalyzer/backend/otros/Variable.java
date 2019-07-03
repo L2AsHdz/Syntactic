@@ -1,4 +1,4 @@
-package syntacticanalyzer.backend.variables;
+package syntacticanalyzer.backend.otros;
 
 public class Variable {
     private final String nombre;
