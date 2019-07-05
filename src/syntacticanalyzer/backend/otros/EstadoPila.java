@@ -1,14 +1,13 @@
 package syntacticanalyzer.backend.otros;
 
-import java.util.Stack;
 
 public class EstadoPila {
-    private final Stack pilaActual;
+    private final Object[] pilaActual;
     private final int id;
     private final int index;
     private int noCaminos;
 
-    public EstadoPila(Stack pilaActual, int id, int index, int noCaminos) {
+    public EstadoPila(Object[] pilaActual, int id, int index, int noCaminos) {
         this.pilaActual = pilaActual;
         this.id = id;
         this.index = index;
@@ -23,7 +22,7 @@ public class EstadoPila {
         this.noCaminos = noCaminos;
     }
 
-    public Stack getPilaActual() {
+    public Object[] getPilaActual() {
         return pilaActual;
     }
 

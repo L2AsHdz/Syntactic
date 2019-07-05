@@ -59,15 +59,15 @@ public class SyntacticControl {
                         pila.push(escribir);
                     } else if (verPila("S1")) {
                         if (opcion == 1) {
-                            pilas.add(new EstadoPila(pila,1,i,3));
+                            pilas.add(new EstadoPila(pila.toArray(),1,i,3));
                             pila.pop();
                             pila.push(literal);
                         } else if (opcion == 2) {
-                            pilas.add(new EstadoPila(pila,2,i,3));
+                            pilas.add(new EstadoPila(pila.toArray(),2,i,3));
                             pila.pop();
                             pila.push(numero);
                         } else if (opcion == 3) {
-                            pilas.add(new EstadoPila(pila,3,i,3));
+                            pilas.add(new EstadoPila(pila.toArray(),3,i,3));
                             pila.pop();
                             pila.push(id);
                         }  
@@ -77,6 +77,9 @@ public class SyntacticControl {
                     } else if (compararToken(fin,i) && verPila(fin)) {
                         pila.pop();
                         i++;
+                        if ((noTokens-i) == 0) {
+                            i--;
+                        }
                     } else if (compararToken(literal,i) && verPila(literal)) {
                         texto = tokens.get(i).getLexema();
                         pila.pop();
@@ -91,21 +94,23 @@ public class SyntacticControl {
                         i++;
                     } else if (verPila("Z")) {
                         estadoActual = 2;
+                        opcion = 1;
+                        pilas.clear();
                     } else {
                         if (!pilas.isEmpty()) {
                             int size = pilas.size();
                             int noCaminos = pilas.get((size-1)).getNoCaminos();
                             int ids = pilas.get(size-1).getId();
                             int index = pilas.get(size-1).getIndex();
-                            Stack temp = pilas.get(size-1).getPilaActual();
+                            Object[] temp = pilas.get(size-1).getPilaActual();
                             if (ids <= noCaminos) {
-                                pila = temp;
                                 i = index;
+                                pila.clear();
+                                for (Object o : temp) {
+                                    pila.push(o.toString());
+                                }
                                 pilas.remove(size-1);
                                 opcion++;
-                            } else {
-                                opcion = 1;
-                                pilas.removeAll(null);
                             }
                         }
                     }
@@ -115,9 +120,12 @@ public class SyntacticControl {
                     if (!texto.equals("")) {
                         System.out.println(texto);
                         file.agregar(Interfaz.getPath(), texto);
+                        System.out.println("escribiendo en archivo");
                     }
-                    System.out.println("\n");
                     texto = "";
+                    if ((noTokens-i)==1) {
+                        i++;
+                    }
                     estadoActual = 0;
                     break;
             }

@@ -525,7 +525,7 @@ public class Interfaz extends javax.swing.JFrame {
                     System.out.println("se cancelo");
                 }
                 sc = new SyntacticControl(lc.getTokensValidos());
-                if (!sc.getErrores().isEmpty()) {
+                /*if (!sc.getErrores().isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Se han encontrado errores sintacticos", 
                             "Informacion", JOptionPane.WARNING_MESSAGE);
 
@@ -534,7 +534,8 @@ public class Interfaz extends javax.swing.JFrame {
                     abrirDialog(reporteErroresS);
                 }else {
                     JOptionPane.showMessageDialog(null, "Analisis realizado correctamente");
-                }
+                }*/
+                JOptionPane.showMessageDialog(null, "Analisis realizado correctamente");
             }
         }
     }//GEN-LAST:event_btnAnalizarActionPerformed
