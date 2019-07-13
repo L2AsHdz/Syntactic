@@ -3,31 +3,31 @@ package syntacticanalyzer.backend.otros;
 
 public class EstadoPila {
     private final Object[] pilaActual;
-    private final int id;
+    private final int option;
     private final int index;
-    private int noCaminos;
+    private int numOptions;
 
-    public EstadoPila(Object[] pilaActual, int id, int index, int noCaminos) {
+    public EstadoPila(Object[] pilaActual, int option, int index, int numOptions) {
         this.pilaActual = pilaActual;
-        this.id = id;
+        this.option = option;
         this.index = index;
-        this.noCaminos = noCaminos;
+        this.numOptions = numOptions;
     }
 
-    public int getNoCaminos() {
-        return noCaminos;
+    public int getNumOptions() {
+        return numOptions;
     }
 
-    public void setNoCaminos(int noCaminos) {
-        this.noCaminos = noCaminos;
+    public void setNumOptions(int numOptions) {
+        this.numOptions = numOptions;
     }
 
     public Object[] getPilaActual() {
         return pilaActual;
     }
 
-    public int getId() {
-        return id;
+    public int getOption() {
+        return option;
     }
 
     public int getIndex() {

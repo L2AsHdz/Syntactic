@@ -45,7 +45,7 @@ public class ControladorArchivo {
 
     public void agregar(String path, String texto) {
         try (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(path, true)))) {
-            pw.print(texto);
+            pw.println(texto);
         } catch (IOException e) {
             System.err.println(e);
         }

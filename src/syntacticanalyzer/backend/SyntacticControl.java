@@ -37,21 +37,34 @@ public class SyntacticControl {
 
     public SyntacticControl(ArrayList<TokenValido> tokens) {
 
+        //arrayList con los token validos
         this.tokens = tokens;
+        //pila que manejara el analisis sintactico
         pila.push("Z");
+        //numero total de tokens validos
         int noTokens = tokens.size();
+        //estadoActual en el automata de Pila
         int estadoActual = 0;
+        //iterador usado para recuperar los datos de los tokens
         int i = 0;
                 
+        //el bucle se encarga de procesar todos los tokens validos
         while (i < noTokens) {
+            //cada caso representa un estado del automata de pila general
             switch (estadoActual) {
                 case 0:
+                    //Si en la pila hay una Z se agrega el simbolo inicial
+                    //y nos movemos al estado 1
                     if (verPila("Z")) {
                         pila.push("S0");
                         estadoActual = 1;
                     }
                     break;
                 case 1:
+                    //Sin leer nada y con S0 en la pila se desapila y se sustituye
+                    //por la primera estructura, en dado caso que no sea la correcta
+                    //se resetea la pila y se continua con la siguiente estructura
+                    //hasta encontrar una correcta o generar un error
                     if (verPila("S0")) {
                         pila.pop();
                         pila.push(fin);
@@ -59,6 +72,11 @@ public class SyntacticControl {
                         pila.push(escribir);
                     } else if (verPila("S1")) {
                         if (opcion == 1) {
+                            //pilas es un array list de; objeto estadoPila
+                            //q se usa para guardar el estado actual de la pila
+                            //cuando hay varios caminos por tomar
+                            //en dado caso el camino no funcionara la pila se 
+                            //resetea y prueba con el siguiente camino
                             pilas.add(new EstadoPila(pila.toArray(),1,i,3));
                             pila.pop();
                             pila.push(literal);
@@ -77,6 +95,8 @@ public class SyntacticControl {
                     } else if (compararToken(fin,i) && verPila(fin)) {
                         pila.pop();
                         i++;
+                        //si es el ultimo token de la lista es necesario disminuir
+                        //el indice para que se pueda entrar una vez mas al bucle
                         if ((noTokens-i) == 0) {
                             i--;
                         }
@@ -93,17 +113,27 @@ public class SyntacticControl {
                         pila.pop();
                         i++;
                     } else if (verPila("Z")) {
+                        //en el estado 1 y con Z en la pila significa que hemos 
+                        //reconocido una estructura, por lo cual nos movemos al 
+                        //estado final 2, reseteamos el numero de opcion y limpiamos
+                        //las pilas si las hay
                         estadoActual = 2;
                         opcion = 1;
                         pilas.clear();
                     } else {
+                        //en dado caso no hay ninguna transicion correcta para realizar
+                        //si el arrayList pilas no esta vacio entonces se obtienen
+                        //los datos de la pila, el indice, numero de opciones y
+                        //numero de opcion actual. Se restauran los datos y se pasa
+                        //a la siguiente opcion hasta encontrar una opcion correcta 
+                        //o generar un error sintactico.
                         if (!pilas.isEmpty()) {
                             int size = pilas.size();
-                            int noCaminos = pilas.get((size-1)).getNoCaminos();
-                            int ids = pilas.get(size-1).getId();
+                            int numOptions = pilas.get((size-1)).getNumOptions();
+                            int option = pilas.get(size-1).getOption();
                             int index = pilas.get(size-1).getIndex();
                             Object[] temp = pilas.get(size-1).getPilaActual();
-                            if (ids <= noCaminos) {
+                            if (option <= numOptions) {
                                 i = index;
                                 pila.clear();
                                 for (Object o : temp) {
@@ -112,6 +142,13 @@ public class SyntacticControl {
                                 pilas.remove(size-1);
                                 opcion++;
                             }
+                        } else {
+                            //crear nuevo error sintactico
+                            i++;
+                            estadoActual = 0;
+                            opcion = 1;
+                            pila.clear();
+                            pila.push("Z");
                         }
                     }
                     break;
