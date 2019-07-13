@@ -7,6 +7,7 @@ import syntacticanalyzer.backend.enums.Token;
 import syntacticanalyzer.backend.lexemas.ErrorSintactico;
 import syntacticanalyzer.backend.lexemas.TokenValido;
 import syntacticanalyzer.backend.otros.EstadoPila;
+import syntacticanalyzer.backend.otros.Identificador;
 import syntacticanalyzer.ui.Interfaz;
 
 public class SyntacticControl {
@@ -15,8 +16,12 @@ public class SyntacticControl {
     private final ArrayList<TokenValido> tokens;
     private ArrayList<ErrorSintactico> errores = new ArrayList();
     private ArrayList<EstadoPila> pilas = new ArrayList();
+    private ArrayList<Identificador> ids = new ArrayList();
     private Stack<String> pila = new Stack();
     private int opcion = 1;
+    private int veces = 1;
+    private boolean repeat = false;
+    private boolean condicion = true;
     private String texto = "";
     private String escribir = Token.ESCRIBIR.toString();
     private String id = Token.IDENTIFICADOR.toString();
@@ -66,11 +71,22 @@ public class SyntacticControl {
                     //se resetea la pila y se continua con la siguiente estructura
                     //hasta encontrar una correcta o generar un error
                     if (verPila("S0")) {
-                        pila.pop();
-                        pila.push(fin);
-                        pila.push("S1");
-                        pila.push(escribir);
-                    } else if (verPila("S1")) {
+                        if (opcion == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(),1,i,2));
+                            pila.pop();
+                            pila.push(fin);
+                            pila.push("E1");
+                            pila.push(escribir);
+                        } else if (opcion == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(),2,i,2));
+                            pila.pop();
+                            pila.push("R0*");
+                            pila.push(iniciar);
+                            pila.push("R1");
+                            pila.push(repetir);
+                            opcion = 1;
+                        }
+                    } else if (verPila("E1")) {
                         if (opcion == 1) {
                             //pilas es un array list de; objeto estadoPila
                             //q se usa para guardar el estado actual de la pila
@@ -88,6 +104,62 @@ public class SyntacticControl {
                             pilas.add(new EstadoPila(pila.toArray(),3,i,3));
                             pila.pop();
                             pila.push(id);
+                            opcion = 1;
+                        }  
+                    } else if (verPila("R1")) {
+                        if (opcion == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(),1,i,2));
+                            pila.pop();
+                            pila.push(numero);
+                        } else if (opcion == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(),2,i,2));
+                            pila.pop();
+                            pila.push(id);
+                            opcion = 1;
+                        }
+                    } else if (verPila("R0*")) {
+                        if (opcion == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(),1,i,2));
+                            pila.pop();
+                            pila.push(fin);
+                        } else if (opcion == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(),2,i,2));
+                            pila.pop();
+                            pila.push(fin);
+                            pila.push("R2");
+                            opcion = 1;
+                        }
+                    } else if (verPila("R2")) {
+                        pila.pop();
+                        pila.push("R2*");
+                        pila.push("R3");
+                        pila.push(escribir);
+                    } else if (verPila("R2*")) {
+                        if (opcion == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(),1,i,2));
+                            pila.pop();
+                            pila.push(fin);
+                        } else if (opcion == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(),2,i,2));
+                            pila.pop();
+                            pila.push("R2");
+                            pila.push(fin);
+                            opcion = 1;
+                        }
+                    } else if (verPila("R3")) {
+                        if (opcion == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(),1,i,3));
+                            pila.pop();
+                            pila.push(literal);
+                        } else if (opcion == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(),2,i,3));
+                            pila.pop();
+                            pila.push(numero);
+                        } else if (opcion == 3) {
+                            pilas.add(new EstadoPila(pila.toArray(),3,i,3));
+                            pila.pop();
+                            pila.push(id);
+                            opcion = 1;
                         }  
                     } else if (compararToken(escribir,i) && verPila(escribir)) {
                         pila.pop();
@@ -107,9 +179,40 @@ public class SyntacticControl {
                     } else if (compararToken(numero,i) && verPila(numero)) {
                         texto = tokens.get(i).getLexema();
                         pila.pop();
+                        if (repeat) {
+                            veces = Integer.parseInt(texto);
+                        }
                         i++;
                     } else if (compararToken(id,i) && verPila(id)) {
-                        texto = tokens.get(i).getLexema();
+                        String nameId = tokens.get(i).getLexema();
+                        boolean existe = false;
+                        for (Identificador idd : ids) {
+                            if ((nameId.equals(idd.getNombre()))) {
+                                existe = true;
+                            }
+                        }
+                        if (!existe) {
+                            ids.add(new Identificador(nameId));
+                        }
+                        for (Identificador idd : ids) {
+                            if (nameId.equals(idd.getNombre())) {
+                                if (idd.getValor() == -1) {
+                                    texto = nameId;
+                                }else{
+                                    texto = String.valueOf(idd.getValor());
+                                }
+                                if (repeat) {
+                                    veces = idd.getValor();
+                                }
+                            }
+                        }
+                        pila.pop();
+                        i++;
+                    } else if (compararToken(repetir,i) && verPila(repetir)) {
+                        pila.pop();
+                        i++;
+                        repeat = true;
+                    } else if (compararToken(iniciar,i) && verPila(iniciar)) {
                         pila.pop();
                         i++;
                     } else if (verPila("Z")) {
@@ -146,6 +249,8 @@ public class SyntacticControl {
                             //crear nuevo error sintactico
                             i++;
                             estadoActual = 0;
+                            repeat = false;
+                            veces = 1;
                             opcion = 1;
                             pila.clear();
                             pila.push("Z");
@@ -155,15 +260,19 @@ public class SyntacticControl {
                 case 2:
                     System.out.println("Estructura Correcta!");
                     if (!texto.equals("")) {
+                        for (int j = 0; j < veces; j++) {
                         System.out.println(texto);
                         file.agregar(Interfaz.getPath(), texto);
                         System.out.println("escribiendo en archivo");
+                        }
                     }
                     texto = "";
                     if ((noTokens-i)==1) {
                         i++;
                     }
                     estadoActual = 0;
+                    veces = 1;
+                    repeat = false;
                     break;
             }
         }
