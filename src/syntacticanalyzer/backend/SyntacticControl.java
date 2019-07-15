@@ -56,9 +56,9 @@ public class SyntacticControl {
         int i = 0;
         for (int j = 0; j < opciones.length; j++) {
             opciones[j] = 1;
-            
+
         }
-                
+
         //el bucle se encarga de procesar todos los tokens validos
         while (i < noTokens) {
             //cada caso representa un estado del automata de pila general
@@ -78,13 +78,13 @@ public class SyntacticControl {
                     //hasta encontrar una correcta o generar un error
                     if (verPila("S0")) {
                         if (opciones[0] == 1) {
-                            pilas.add(new EstadoPila(pila.toArray(),1,i,2,0));
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 0));
                             pila.pop();
                             pila.push(fin);
                             pila.push("E1");
                             pila.push(escribir);
                         } else if (opciones[0] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(),2,i,2,0));
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 0));
                             pila.pop();
                             pila.push("R0*");
                             pila.push(iniciar);
@@ -99,37 +99,37 @@ public class SyntacticControl {
                             //cuando hay varios caminos por tomar
                             //en dado caso el camino no funcionara la pila se 
                             //resetea y prueba con el siguiente camino
-                            pilas.add(new EstadoPila(pila.toArray(),1,i,3,1));
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 3, 1));
                             pila.pop();
                             pila.push(literal);
                         } else if (opciones[1] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(),2,i,3,1));
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 3, 1));
                             pila.pop();
                             pila.push(numero);
                         } else if (opciones[1] == 3) {
-                            pilas.add(new EstadoPila(pila.toArray(),3,i,3,1));
+                            pilas.add(new EstadoPila(pila.toArray(), 3, i, 3, 1));
                             pila.pop();
                             pila.push(id);
                             opciones[1] = 1;
-                        }  
+                        }
                     } else if (verPila("R1")) {
                         if (opciones[2] == 1) {
-                            pilas.add(new EstadoPila(pila.toArray(),1,i,2,2));
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 2));
                             pila.pop();
                             pila.push(numero);
                         } else if (opciones[2] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(),2,i,2,2));
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 2));
                             pila.pop();
                             pila.push(id);
                             opciones[2] = 1;
                         }
                     } else if (verPila("R0*")) {
                         if (opciones[3] == 1) {
-                            pilas.add(new EstadoPila(pila.toArray(),1,i,2,3));
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 3));
                             pila.pop();
                             pila.push(fin);
                         } else if (opciones[3] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(),2,i,2,3));
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 3));
                             pila.pop();
                             pila.push(fin);
                             pila.push("R2");
@@ -142,11 +142,11 @@ public class SyntacticControl {
                         pila.push(escribir);
                     } else if (verPila("R2*")) {
                         if (opciones[4] == 1) {
-                            pilas.add(new EstadoPila(pila.toArray(),1,i,2,4));
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 4));
                             pila.pop();
                             pila.push(fin);
                         } else if (opciones[4] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(),2,i,2,4));
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 4));
                             pila.pop();
                             pila.push("R2");
                             pila.push(fin);
@@ -154,43 +154,52 @@ public class SyntacticControl {
                         }
                     } else if (verPila("R3")) {
                         if (opciones[5] == 1) {
-                            pilas.add(new EstadoPila(pila.toArray(),1,i,3,5));
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 3, 5));
                             pila.pop();
                             pila.push(literal);
                         } else if (opciones[5] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(),2,i,3,5));
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 3, 5));
                             pila.pop();
                             pila.push(numero);
                         } else if (opciones[5] == 3) {
-                            pilas.add(new EstadoPila(pila.toArray(),3,i,3,5));
+                            pilas.add(new EstadoPila(pila.toArray(), 3, i, 3, 5));
                             pila.pop();
                             pila.push(id);
                             opciones[5] = 1;
-                        }  
-                    } else if (compararToken(escribir,i) && verPila(escribir)) {
+                        }
+                    } else if (compararToken(escribir, i) && verPila(escribir)) {
                         pila.pop();
                         i++;
-                    } else if (compararToken(fin,i) && verPila(fin)) {
+                    } else if (compararToken(fin, i) && verPila(fin)) {
                         pila.pop();
                         i++;
                         //si es el ultimo token de la lista es necesario disminuir
                         //el indice para que se pueda entrar una vez mas al bucle
-                        if ((noTokens-i) == 0) {
+                        if ((noTokens - i) == 0) {
                             i--;
                         }
-                    } else if (compararToken(literal,i) && verPila(literal)) {
-                        texto = tokens.get(i).getLexema();
+                    } else if (compararToken(literal, i) && verPila(literal)) {
+                        if (repeat) {
+                            texto += tokens.get(i).getLexema();
+                        } else {
+                            texto = tokens.get(i).getLexema();
+                        }
                         pila.pop();
                         i++;
-                    } else if (compararToken(numero,i) && verPila(numero)) {
-                        texto = tokens.get(i).getLexema();
+                    } else if (compararToken(numero, i) && verPila(numero)) {
+                        if (repeat) {
+                            texto += tokens.get(i).getLexema();
+                        } else {
+                            texto = tokens.get(i).getLexema();
+                        }
                         pila.pop();
                         if (repeatNumber) {
                             veces = Integer.parseInt(texto);
+                            texto ="";
                             repeatNumber = false;
                         }
                         i++;
-                    } else if (compararToken(id,i) && verPila(id)) {
+                    } else if (compararToken(id, i) && verPila(id)) {
                         String nameId = tokens.get(i).getLexema();
                         boolean existe = false;
                         for (Identificador idd : ids) {
@@ -204,9 +213,17 @@ public class SyntacticControl {
                         for (Identificador idd : ids) {
                             if (nameId.equals(idd.getNombre())) {
                                 if (idd.getValor() == -1) {
-                                    texto = nameId;
-                                }else{
-                                    texto = String.valueOf(idd.getValor());
+                                    if (repeat) {
+                                        texto += nameId;
+                                    } else {
+                                        texto = nameId;
+                                    }
+                                } else {
+                                    if (repeat) {
+                                        texto += String.valueOf(idd.getValor());
+                                    } else {
+                                        texto = String.valueOf(idd.getValor());
+                                    }
                                 }
                                 if (repeatNumber) {
                                     veces = idd.getValor();
@@ -215,11 +232,12 @@ public class SyntacticControl {
                         }
                         pila.pop();
                         i++;
-                    } else if (compararToken(repetir,i) && verPila(repetir)) {
+                    } else if (compararToken(repetir, i) && verPila(repetir)) {
                         pila.pop();
                         i++;
                         repeatNumber = true;
-                    } else if (compararToken(iniciar,i) && verPila(iniciar)) {
+                        repeat = true;
+                    } else if (compararToken(iniciar, i) && verPila(iniciar)) {
                         pila.pop();
                         i++;
                     } else if (verPila("Z")) {
@@ -229,8 +247,8 @@ public class SyntacticControl {
                         //las pilas si las hay
                         estadoActual = 2;
                         for (int j = 0; j < opciones.length; j++) {
-                                opciones[j] = 1;
-                            }
+                            opciones[j] = 1;
+                        }
                         pilas.clear();
                     } else {
                         //en dado caso no hay ninguna transicion correcta para realizar
@@ -241,18 +259,18 @@ public class SyntacticControl {
                         //o generar un error sintactico.
                         if (!pilas.isEmpty()) {
                             int size = pilas.size();
-                            int numOptions = pilas.get((size-1)).getNumOptions();
-                            int option = pilas.get(size-1).getOption();
-                            int index = pilas.get(size-1).getIndex();
-                            int idOp = pilas.get(size-1).getIdOpcion();
-                            Object[] temp = pilas.get(size-1).getPilaActual();
+                            int numOptions = pilas.get((size - 1)).getNumOptions();
+                            int option = pilas.get(size - 1).getOption();
+                            int index = pilas.get(size - 1).getIndex();
+                            int idOp = pilas.get(size - 1).getIdOpcion();
+                            Object[] temp = pilas.get(size - 1).getPilaActual();
                             if (option <= numOptions) {
                                 i = index;
                                 pila.clear();
                                 for (Object o : temp) {
                                     pila.push(o.toString());
                                 }
-                                pilas.remove(size-1);
+                                pilas.remove(size - 1);
                                 switch (idOp) {
                                     case 0:
                                         opciones[0]++;
@@ -279,6 +297,7 @@ public class SyntacticControl {
                             i++;
                             estadoActual = 0;
                             repeatNumber = false;
+                            repeat = false;
                             veces = 1;
                             for (int j = 0; j < opciones.length; j++) {
                                 opciones[j] = 1;
@@ -292,18 +311,19 @@ public class SyntacticControl {
                     System.out.println("Estructura Correcta!");
                     if (!texto.equals("")) {
                         for (int j = 0; j < veces; j++) {
-                        System.out.println(texto);
-                        file.agregar(Interfaz.getPath(), texto);
-                        System.out.println("escribiendo en archivo");
+                            System.out.println(texto);
+                            file.agregar(Interfaz.getPath(), texto);
+                            System.out.println("escribiendo en archivo");
                         }
                     }
                     texto = "";
-                    if ((noTokens-i)==1) {
+                    if ((noTokens - i) == 1) {
                         i++;
                     }
                     estadoActual = 0;
                     veces = 1;
                     repeatNumber = false;
+                    repeat = false;
                     break;
             }
         }
@@ -316,7 +336,7 @@ public class SyntacticControl {
     private boolean compararToken(String txt, int i) {
         return this.tokens.get(i).getNombreToken().equals(txt);
     }
-    
+
     public ArrayList<ErrorSintactico> getErrores() {
         return errores;
     }
