@@ -8,6 +8,7 @@ import syntacticanalyzer.backend.lexemas.ErrorSintactico;
 import syntacticanalyzer.backend.lexemas.TokenValido;
 import syntacticanalyzer.backend.otros.EstadoPila;
 import syntacticanalyzer.backend.otros.Identificador;
+import syntacticanalyzer.backend.otros.OperadorExpresion;
 import syntacticanalyzer.ui.Interfaz;
 
 public class SyntacticControl {
@@ -17,13 +18,16 @@ public class SyntacticControl {
     private ArrayList<ErrorSintactico> errores = new ArrayList();
     private ArrayList<EstadoPila> pilas = new ArrayList();
     private ArrayList<Identificador> ids = new ArrayList();
+    private ArrayList<String> expression2 = new ArrayList();
     private Stack<String> pila = new Stack();
-    private int[] opciones = new int[10];
+    private int[] opciones = new int[14];
     private int veces = 1;
     private boolean repeatNumber = false;
     private boolean repeat = false;
     private boolean condicion = true;
+    private boolean startExpression = false;
     private String texto = "";
+    private String idToAssign = "";
     private String escribir = Token.ESCRIBIR.toString();
     private String id = Token.IDENTIFICADOR.toString();
     private String literal = Token.LITERAL.toString();
@@ -77,26 +81,33 @@ public class SyntacticControl {
                     //hasta encontrar una correcta o generar un error
                     if (verPila("S0")) {
                         if (opciones[0] == 1) {
-                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 3, 0));
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 4, 0));
                             pila.pop();
                             pila.push(fin);
                             pila.push("E1");
                             pila.push(escribir);
                         } else if (opciones[0] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 3, 0));
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 4, 0));
                             pila.pop();
                             pila.push("R0*");
                             pila.push(iniciar);
                             pila.push("R1");
                             pila.push(repetir);
                         } else if (opciones[0] == 3) {
-                            pilas.add(new EstadoPila(pila.toArray(),3,i,3,0));
+                            pilas.add(new EstadoPila(pila.toArray(), 3, i, 4, 0));
                             pila.pop();
                             pila.push("C0*");
                             pila.push(entonces);
                             pila.push("C1");
                             pila.push(si);
-                            opciones[0] = 1;
+                        } else if (opciones[0] == 4) {
+                            pilas.add(new EstadoPila(pila.toArray(), 4, i, 4, 0));
+                            pila.pop();
+                            pila.push(fin);
+                            pila.push("EX0");
+                            pila.push(asignacion);
+                            pila.push(id);
+                            opciones[0] = 1;//esto genera un ciclo infinito cuando no hay ningun camino correcto
                         }
                     } else if (verPila("E1")) {
                         if (opciones[1] == 1) {
@@ -193,7 +204,7 @@ public class SyntacticControl {
                             pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 7));
                             pila.pop();
                             pila.push(fin);
-                            pila.push("R2");
+                            pila.push("C2");
                             opciones[7] = 1;
                         }
                     } else if (verPila("C2")) {
@@ -216,6 +227,83 @@ public class SyntacticControl {
                             pila.push(id);
                             opciones[8] = 1;
                         }
+                    } else if (verPila("EX0")) {
+                        if (opciones[9] == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 9));
+                            pila.pop();
+                            pila.push("EX0*");
+                            pila.push("EX3");
+                            pila.push("EX2");
+                            pila.push("EX1");
+                            pila.push(pa);
+                        } else if (opciones[9] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 9));
+                            pila.pop();
+                            pila.push("EX3");
+                            pila.push("EX2");
+                            pila.push("EX1");
+                            opciones[9] = 1;
+                        }
+                    } else if (verPila("EX0*")) {
+                        if (opciones[10] == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 10));
+                            pila.pop();
+                            pila.push(pc);
+                        } else if (opciones[10] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 10));
+                            pila.pop();
+                            pila.push("EX0");
+                            pila.push("EX2");
+                            pila.push(pc);
+                            opciones[10] = 1;
+                        }
+                    } else if (verPila("EX3")) {
+                        if (opciones[11] == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 4, 11));
+                            pila.pop();
+                            pila.push(numero);
+                        } else if (opciones[11] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 4, 11));
+                            pila.pop();
+                            pila.push(id);
+                        } else if (opciones[11] == 3) {
+                            pilas.add(new EstadoPila(pila.toArray(), 3, i, 4, 11));
+                            pila.pop();
+                            pila.push("EX3");
+                            pila.push("EX2");
+                            pila.push("EX1");
+                        } else if (opciones[11] == 4) {
+                            pilas.add(new EstadoPila(pila.toArray(), 4, i, 4, 11));
+                            pila.pop();
+                            pila.push("EX0*");
+                            pila.push("EX3");
+                            pila.push("EX2");
+                            pila.push("EX1");
+                            pila.push(pa);
+                            opciones[11] = 1;
+                        }
+                    } else if (verPila("EX2")) {
+                        if (opciones[12] == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 12));
+                            pila.pop();
+                            pila.push(suma);
+                        } else if (opciones[12] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 12));
+                            pila.pop();
+                            pila.push(mult);
+                            opciones[12] = 1;
+                        }
+                    } else if (verPila("EX1")) {
+                        if (opciones[13] == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 13));
+                            pila.pop();
+                            pila.push(numero);
+                        } else if (opciones[13] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 13));
+                            pila.pop();
+                            pila.push(id);
+                            opciones[13] = 1;
+                        }
                     } else if (compararToken(escribir, i) && verPila(escribir)) {
                         pila.pop();
                         i++;
@@ -226,6 +314,17 @@ public class SyntacticControl {
                         //el indice para que se pueda entrar una vez mas al bucle
                         if ((noTokens - i) == 0) {
                             i--;
+                        }
+                        if (startExpression) {
+                            for (String s : expression2) {
+                                System.out.print(s + " ");
+                            }
+                            for (Identificador idd : ids) {
+                                if (idToAssign.equals(idd.getNombre())) {
+                                    idd.setValor(OperadorExpresion.Operar(expression2));
+                                }
+                            }
+                            startExpression = false;
                         }
                     } else if (compararToken(literal, i) && verPila(literal)) {
                         //si la variable repeat es true significa que estamos dentro
@@ -245,13 +344,16 @@ public class SyntacticControl {
                         } else {
                             texto = tokens.get(i).getLexema();
                         }
+                        if (startExpression) {
+                            expression2.add(tokens.get(i).getLexema());
+                        }
                         pila.pop();
                         //si la variable repeatNumber es true significa que es
                         //una posible estructura REPETIR por lo cual el primer numero
                         //encontrado es la cantidad de veces que se repetira el texto
                         if (repeatNumber) {
                             veces = Integer.parseInt(texto);
-                            texto ="";
+                            texto = "";
                             repeatNumber = false;
                         }
                         i++;
@@ -287,6 +389,9 @@ public class SyntacticControl {
                                     } else {
                                         texto = String.valueOf(idd.getValor());
                                     }
+                                    if (startExpression) {
+                                        expression2.add(String.valueOf(idd.getValor()));
+                                    }
                                 }
                                 if (repeatNumber) {
                                     veces = idd.getValor();
@@ -317,6 +422,35 @@ public class SyntacticControl {
                     } else if (compararToken(entonces, i) && verPila(entonces)) {
                         pila.pop();
                         i++;
+                    } else if (compararToken(mult, i) && verPila(mult)) {
+                        pila.pop();
+                        if (startExpression) {
+                            expression2.add(tokens.get(i).getLexema());
+                        }
+                        i++;
+                    } else if (compararToken(suma, i) && verPila(suma)) {
+                        pila.pop();
+                        if (startExpression) {
+                            expression2.add(tokens.get(i).getLexema());
+                        }
+                        i++;
+                    } else if (compararToken(pa, i) && verPila(pa)) {
+                        pila.pop();
+                        if (startExpression) {
+                            expression2.add(tokens.get(i).getLexema());
+                        }
+                        i++;
+                    } else if (compararToken(pc, i) && verPila(pc)) {
+                        pila.pop();
+                        if (startExpression) {
+                            expression2.add(tokens.get(i).getLexema());
+                        }
+                        i++;
+                    } else if (compararToken(asignacion, i) && verPila(asignacion)) {
+                        idToAssign = tokens.get(i-1).getLexema();
+                        pila.pop();
+                        i++;
+                        startExpression = true;
                     } else if (verPila("Z")) {
                         //en el estado 1 y con Z en la pila significa que hemos 
                         //reconocido una estructura, por lo cual nos movemos al 
@@ -376,6 +510,21 @@ public class SyntacticControl {
                                     case 8:
                                         opciones[8]++;
                                         break;
+                                    case 9:
+                                        opciones[9]++;
+                                        break;
+                                    case 10:
+                                        opciones[10]++;
+                                        break;
+                                    case 11:
+                                        opciones[11]++;
+                                        break;
+                                    case 12:
+                                        opciones[12]++;
+                                        break;
+                                    case 13:
+                                        opciones[13]++;
+                                        break;
                                 }
                             }
                         } else {
@@ -384,6 +533,7 @@ public class SyntacticControl {
                             estadoActual = 0;
                             repeatNumber = false;
                             repeat = false;
+                            startExpression = false;
                             veces = 1;
                             for (int j = 0; j < opciones.length; j++) {
                                 opciones[j] = 1;
@@ -410,6 +560,7 @@ public class SyntacticControl {
                     veces = 1;
                     repeatNumber = false;
                     repeat = false;
+                    startExpression = false;
                     condicion = true;
                     break;
             }
