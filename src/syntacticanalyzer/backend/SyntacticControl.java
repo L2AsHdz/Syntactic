@@ -19,7 +19,6 @@ public class SyntacticControl {
     private ArrayList<Identificador> ids = new ArrayList();
     private Stack<String> pila = new Stack();
     private int[] opciones = new int[10];
-    private int opcion = 1;
     private int veces = 1;
     private boolean repeatNumber = false;
     private boolean repeat = false;
@@ -101,8 +100,8 @@ public class SyntacticControl {
                         }
                     } else if (verPila("E1")) {
                         if (opciones[1] == 1) {
-                            //pilas es un array list de; objeto estadoPila
-                            //q se usa para guardar el estado actual de la pila
+                            //pilas es un array list del objeto estadoPila
+                            //que se usa para guardar el estado actual de la pila
                             //cuando hay varios caminos por tomar
                             //en dado caso el camino no funcionara la pila se 
                             //resetea y prueba con el siguiente camino
@@ -229,6 +228,10 @@ public class SyntacticControl {
                             i--;
                         }
                     } else if (compararToken(literal, i) && verPila(literal)) {
+                        //si la variable repeat es true significa que estamos dentro
+                        //de una posible estructura REPETIR por lo cual el texto se
+                        //tiene que acumular. De lo contrario puede ser cualquier otra
+                        //estructura y el texto se reemplaza
                         if (repeat) {
                             texto += tokens.get(i).getLexema();
                         } else {
@@ -243,6 +246,9 @@ public class SyntacticControl {
                             texto = tokens.get(i).getLexema();
                         }
                         pila.pop();
+                        //si la variable repeatNumber es true significa que es
+                        //una posible estructura REPETIR por lo cual el primer numero
+                        //encontrado es la cantidad de veces que se repetira el texto
                         if (repeatNumber) {
                             veces = Integer.parseInt(texto);
                             texto ="";
@@ -252,14 +258,21 @@ public class SyntacticControl {
                     } else if (compararToken(id, i) && verPila(id)) {
                         String nameId = tokens.get(i).getLexema();
                         boolean existe = false;
+                        //Verifica si el identificador ya existe
                         for (Identificador idd : ids) {
                             if ((nameId.equals(idd.getNombre()))) {
                                 existe = true;
                             }
                         }
+                        //si no existe el identificador crea un nuevo objeto
+                        //con el nombre dado y el valor predeterminado
                         if (!existe) {
                             ids.add(new Identificador(nameId));
                         }
+                        //Busca el identificador en el ArrayList, si el valor sigue
+                        //siendo el predeterminado entonces el texto a imprimir sera
+                        //el nombre del identificador. Si el valor es distinto el
+                        //texto a imprimir sera el valor que tenga el identificador
                         for (Identificador idd : ids) {
                             if (nameId.equals(idd.getNombre())) {
                                 if (idd.getValor() == -1) {
