@@ -78,18 +78,25 @@ public class SyntacticControl {
                     //hasta encontrar una correcta o generar un error
                     if (verPila("S0")) {
                         if (opciones[0] == 1) {
-                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 0));
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 3, 0));
                             pila.pop();
                             pila.push(fin);
                             pila.push("E1");
                             pila.push(escribir);
                         } else if (opciones[0] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 0));
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 3, 0));
                             pila.pop();
                             pila.push("R0*");
                             pila.push(iniciar);
                             pila.push("R1");
                             pila.push(repetir);
+                        } else if (opciones[0] == 3) {
+                            pilas.add(new EstadoPila(pila.toArray(),3,i,3,0));
+                            pila.pop();
+                            pila.push("C0*");
+                            pila.push(entonces);
+                            pila.push("C1");
+                            pila.push(si);
                             opciones[0] = 1;
                         }
                     } else if (verPila("E1")) {
@@ -167,6 +174,49 @@ public class SyntacticControl {
                             pila.push(id);
                             opciones[5] = 1;
                         }
+                    } else if (verPila("C1")) {
+                        if (opciones[6] == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 6));
+                            pila.pop();
+                            pila.push(verdadero);
+                        } else if (opciones[6] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 6));
+                            pila.pop();
+                            pila.push(falso);
+                            opciones[6] = 1;
+                        }
+                    } else if (verPila("C0*")) {
+                        if (opciones[7] == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 7));
+                            pila.pop();
+                            pila.push(fin);
+                        } else if (opciones[7] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 2, 7));
+                            pila.pop();
+                            pila.push(fin);
+                            pila.push("R2");
+                            opciones[7] = 1;
+                        }
+                    } else if (verPila("C2")) {
+                        pila.pop();
+                        pila.push(fin);
+                        pila.push("C3");
+                        pila.push(escribir);
+                    } else if (verPila("C3")) {
+                        if (opciones[8] == 1) {
+                            pilas.add(new EstadoPila(pila.toArray(), 1, i, 3, 8));
+                            pila.pop();
+                            pila.push(literal);
+                        } else if (opciones[8] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 3, 8));
+                            pila.pop();
+                            pila.push(numero);
+                        } else if (opciones[5] == 3) {
+                            pilas.add(new EstadoPila(pila.toArray(), 3, i, 3, 8));
+                            pila.pop();
+                            pila.push(id);
+                            opciones[8] = 1;
+                        }
                     } else if (compararToken(escribir, i) && verPila(escribir)) {
                         pila.pop();
                         i++;
@@ -240,6 +290,20 @@ public class SyntacticControl {
                     } else if (compararToken(iniciar, i) && verPila(iniciar)) {
                         pila.pop();
                         i++;
+                    } else if (compararToken(si, i) && verPila(si)) {
+                        pila.pop();
+                        i++;
+                    } else if (compararToken(verdadero, i) && verPila(verdadero)) {
+                        pila.pop();
+                        i++;
+                        condicion = true;
+                    } else if (compararToken(falso, i) && verPila(falso)) {
+                        pila.pop();
+                        i++;
+                        condicion = false;
+                    } else if (compararToken(entonces, i) && verPila(entonces)) {
+                        pila.pop();
+                        i++;
                     } else if (verPila("Z")) {
                         //en el estado 1 y con Z en la pila significa que hemos 
                         //reconocido una estructura, por lo cual nos movemos al 
@@ -290,6 +354,15 @@ public class SyntacticControl {
                                     case 5:
                                         opciones[5]++;
                                         break;
+                                    case 6:
+                                        opciones[6]++;
+                                        break;
+                                    case 7:
+                                        opciones[7]++;
+                                        break;
+                                    case 8:
+                                        opciones[8]++;
+                                        break;
                                 }
                             }
                         } else {
@@ -309,7 +382,7 @@ public class SyntacticControl {
                     break;
                 case 2:
                     System.out.println("Estructura Correcta!");
-                    if (!texto.equals("")) {
+                    if (!texto.equals("") && condicion) {
                         for (int j = 0; j < veces; j++) {
                             System.out.println(texto);
                             file.agregar(Interfaz.getPath(), texto);
@@ -324,6 +397,7 @@ public class SyntacticControl {
                     veces = 1;
                     repeatNumber = false;
                     repeat = false;
+                    condicion = true;
                     break;
             }
         }
