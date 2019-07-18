@@ -26,6 +26,7 @@ public class SyntacticControl {
     private boolean repeat = false;
     private boolean condicion = true;
     private boolean startExpression = false;
+    private boolean addNumExpression = false;
     private String texto = "";
     private String idToAssign = "";
     private String escribir = Token.ESCRIBIR.toString();
@@ -301,7 +302,8 @@ public class SyntacticControl {
                                 }
                             }
                             startExpression = false;
-                            texto = "";
+                            //texto = "";
+                            condicion = false;
                         }
                     } else if (compararToken(literal, i) && verPila(literal)) {
                         //si la variable repeat es true significa que estamos dentro
@@ -322,7 +324,11 @@ public class SyntacticControl {
                             texto = tokens.get(i).getLexema();
                         }
                         if (startExpression) {
-                            expression2.add(tokens.get(i).getLexema());
+                            if (expression2.isEmpty()) {
+                                expression2.add(tokens.get(i).getLexema());
+                            } else if (!OperadorExpresion.isNumeric(expression2.get(expression2.size()-1 ))) {
+                                expression2.add(tokens.get(i).getLexema());
+                            }
                         }
                         pila.pop();
                         //si la variable repeatNumber es true significa que es
@@ -367,7 +373,11 @@ public class SyntacticControl {
                                         texto = String.valueOf(idd.getValor());
                                     }
                                     if (startExpression) {
-                                        expression2.add(String.valueOf(idd.getValor()));
+                                        if (expression2.isEmpty()) {
+                                            expression2.add(String.valueOf(idd.getValor()));
+                                        } else if (!OperadorExpresion.isNumeric(expression2.get(expression2.size()-1 ))) {
+                                            expression2.add(String.valueOf(idd.getValor()));
+                                        }
                                     }
                                 }
                                 if (repeatNumber) {

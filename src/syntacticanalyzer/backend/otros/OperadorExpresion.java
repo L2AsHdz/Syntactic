@@ -89,7 +89,7 @@ public class OperadorExpresion {
         return Integer.parseInt(pila.peek());
     }
     
-    private static boolean isNumeric(String s){
+    public static boolean isNumeric(String s){
         try {
             int n = Integer.parseInt(s);
             return true;

@@ -265,6 +265,7 @@ public class Interfaz extends javax.swing.JFrame {
 
         cordCursor.setText("Linea: 1 - Columna: 1");
 
+        btnAnalizar.setMnemonic('a');
         btnAnalizar.setText("Analizar");
         btnAnalizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -272,6 +273,7 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
+        btnReport.setMnemonic('r');
         btnReport.setText("Reporte Tokens");
         btnReport.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
