@@ -26,7 +26,7 @@ public class SyntacticControl {
     private boolean repeat = false;
     private boolean condicion = true;
     private boolean startExpression = false;
-    private boolean addNumExpression = false;
+    private boolean allOptionsTested = false;
     private String texto = "";
     private String idToAssign = "";
     private String escribir = Token.ESCRIBIR.toString();
@@ -107,6 +107,7 @@ public class SyntacticControl {
                             pila.push("EX0");
                             pila.push(asignacion);
                             pila.push(id);
+                            allOptionsTested = true;
                         }
                     } else if (verPila("E1")) {
                         if (opciones[1] == 1) {
@@ -125,6 +126,7 @@ public class SyntacticControl {
                         } else if (opciones[1] == 3) {
                             pila.pop();
                             pila.push(id);
+                            allOptionsTested = true;
                         }
                     } else if (verPila("R1")) {
                         if (opciones[2] == 1) {
@@ -135,21 +137,24 @@ public class SyntacticControl {
                             pila.pop();
                             pila.push(id);
                         }
+                        allOptionsTested = true;
                     } else if (verPila("R0*")) {
                         if (opciones[3] == 1) {
                             pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 3));
                             pila.pop();
                             pila.push(fin);
+                            pila.push("R2");
                         } else if (opciones[3] == 2) {
                             pila.pop();
                             pila.push(fin);
-                            pila.push("R2");
+                            allOptionsTested = true;
                         }
                     } else if (verPila("R2")) {
                         pila.pop();
                         pila.push("R2*");
                         pila.push("R3");
                         pila.push(escribir);
+                        allOptionsTested = true;
                     } else if (verPila("R2*")) {
                         if (opciones[4] == 1) {
                             pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 4));
@@ -159,6 +164,7 @@ public class SyntacticControl {
                             pila.pop();
                             pila.push("R2");
                             pila.push(fin);
+                            allOptionsTested = true;
                         }
                     } else if (verPila("R3")) {
                         if (opciones[5] == 1) {
@@ -172,6 +178,7 @@ public class SyntacticControl {
                         } else if (opciones[5] == 3) {
                             pila.pop();
                             pila.push(id);
+                            allOptionsTested = true;
                         }
                     } else if (verPila("C1")) {
                         if (opciones[6] == 1) {
@@ -182,22 +189,25 @@ public class SyntacticControl {
                             pila.pop();
                             pila.push(falso);
                             opciones[6] = 1;
+                            allOptionsTested = true;
                         }
                     } else if (verPila("C0*")) {
                         if (opciones[7] == 1) {
                             pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 7));
                             pila.pop();
                             pila.push(fin);
+                            pila.push("C2");
                         } else if (opciones[7] == 2) {
                             pila.pop();
                             pila.push(fin);
-                            pila.push("C2");
+                            allOptionsTested = true;
                         }
                     } else if (verPila("C2")) {
                         pila.pop();
                         pila.push(fin);
                         pila.push("C3");
                         pila.push(escribir);
+                        allOptionsTested = true;
                     } else if (verPila("C3")) {
                         if (opciones[8] == 1) {
                             pilas.add(new EstadoPila(pila.toArray(), 1, i, 3, 8));
@@ -210,6 +220,7 @@ public class SyntacticControl {
                         } else if (opciones[5] == 3) {
                             pila.pop();
                             pila.push(id);
+                            allOptionsTested = true;
                         }
                     } else if (verPila("EX0")) {
                         if (opciones[9] == 1) {
@@ -225,40 +236,43 @@ public class SyntacticControl {
                             pila.push("EX3");
                             pila.push("EX2");
                             pila.push("EX1");
+                            allOptionsTested = true;
                         }
                     } else if (verPila("EX0*")) {
                         if (opciones[10] == 1) {
                             pilas.add(new EstadoPila(pila.toArray(), 1, i, 2, 10));
                             pila.pop();
+                            pila.push("EX3");
+                            pila.push("EX2");
                             pila.push(pc);
                         } else if (opciones[10] == 2) {
                             pila.pop();
-                            pila.push("EX0");
-                            pila.push("EX2");
                             pila.push(pc);
+                            allOptionsTested = true;
                         }
                     } else if (verPila("EX3")) {
                         if (opciones[11] == 1) {
                             pilas.add(new EstadoPila(pila.toArray(), 1, i, 4, 11));
                             pila.pop();
-                            pila.push(numero);
-                        } else if (opciones[11] == 2) {
-                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 4, 11));
-                            pila.pop();
-                            pila.push(id);
-                        } else if (opciones[11] == 3) {
-                            pilas.add(new EstadoPila(pila.toArray(), 3, i, 4, 11));
-                            pila.pop();
                             pila.push("EX3");
                             pila.push("EX2");
                             pila.push("EX1");
-                        } else if (opciones[11] == 4) {
+                        } else if (opciones[11] == 2) {
+                            pilas.add(new EstadoPila(pila.toArray(), 2, i, 4, 11));
                             pila.pop();
                             pila.push("EX0*");
                             pila.push("EX3");
                             pila.push("EX2");
                             pila.push("EX1");
                             pila.push(pa);
+                        } else if (opciones[11] == 3) {
+                            pilas.add(new EstadoPila(pila.toArray(), 3, i, 4, 11));
+                            pila.pop();
+                            pila.push(numero);
+                        } else if (opciones[11] == 4) {
+                            pila.pop();
+                            pila.push(id);
+                            allOptionsTested = true;
                         }
                     } else if (verPila("EX2")) {
                         if (opciones[12] == 1) {
@@ -268,6 +282,10 @@ public class SyntacticControl {
                         } else if (opciones[12] == 2) {
                             pila.pop();
                             pila.push(mult);
+                            allOptionsTested = true;
+                            if (startExpression) {
+                                opciones[12] = 1;
+                            }
                         }
                     } else if (verPila("EX1")) {
                         if (opciones[13] == 1) {
@@ -277,6 +295,10 @@ public class SyntacticControl {
                         } else if (opciones[13] == 2) {
                             pila.pop();
                             pila.push(id);
+                            allOptionsTested = true;
+                            if (startExpression) {
+                                opciones[13] = 1;
+                            }
                         }
                     } else if (compararToken(escribir, i) && verPila(escribir)) {
                         pila.pop();
@@ -375,8 +397,10 @@ public class SyntacticControl {
                                     if (startExpression) {
                                         if (expression2.isEmpty()) {
                                             expression2.add(String.valueOf(idd.getValor()));
+                                            opciones[11] = 1;
                                         } else if (!OperadorExpresion.isNumeric(expression2.get(expression2.size()-1 ))) {
                                             expression2.add(String.valueOf(idd.getValor()));
+                                            opciones[11] = 1;
                                         }
                                     }
                                 }
@@ -413,6 +437,7 @@ public class SyntacticControl {
                         pila.pop();
                         if (startExpression) {
                             expression2.add(tokens.get(i).getLexema());
+                            //opciones[12] = 1;
                         }
                         i++;
                     } else if (compararToken(suma, i) && verPila(suma)) {
@@ -425,6 +450,7 @@ public class SyntacticControl {
                         pila.pop();
                         if (startExpression) {
                             expression2.add(tokens.get(i).getLexema());
+                            opciones[11] = 1;
                         }
                         i++;
                     } else if (compararToken(pc, i) && verPila(pc)) {
@@ -514,7 +540,7 @@ public class SyntacticControl {
                                         break;
                                 }
                             }
-                        } else {
+                        } else if (allOptionsTested){
                             //crear nuevo error sintactico
                             i++;
                             estadoActual = 0;

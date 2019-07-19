@@ -21,6 +21,7 @@ public class OperadorExpresion {
                     case ")":
                         for (int i = pila.size(); i > 0 ; i--) {
                             if (pila.peek().equals("(")) {
+                                pila.pop();
                                 break;
                             } else {
                                 postfija.add(pila.peek());
