@@ -45,6 +45,7 @@ public class SyntacticControl {
     private String mult = Token.MULTIPLICACION.toString();
     private String pa = Token.PA.toString();
     private String pc = Token.PC.toString();
+    private String comentario = Token.COMENTARIO.toString();
 
     public SyntacticControl(ArrayList<TokenValido> tokens) {
 
@@ -321,6 +322,7 @@ public class SyntacticControl {
                             for (Identificador idd : ids) {
                                 if (idToAssign.equals(idd.getNombre())) {
                                     idd.setValor(OperadorExpresion.Operar(expression2));
+                                    expression2.clear();
                                 }
                             }
                             startExpression = false;
@@ -457,6 +459,7 @@ public class SyntacticControl {
                         pila.pop();
                         if (startExpression) {
                             expression2.add(tokens.get(i).getLexema());
+                            opciones[11] = 1;
                         }
                         i++;
                     } else if (compararToken(asignacion, i) && verPila(asignacion)) {
@@ -464,6 +467,8 @@ public class SyntacticControl {
                         pila.pop();
                         i++;
                         startExpression = true;
+                    } else if (compararToken(comentario, i)) {
+                        System.out.println("COMENTARIO");
                     } else if (verPila("Z")) {
                         //en el estado 1 y con Z en la pila significa que hemos 
                         //reconocido una estructura, por lo cual nos movemos al 
